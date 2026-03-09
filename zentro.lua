@@ -1,14 +1,36 @@
+------------------------------------------------
+-- LOGGER (NEUER WEBHOOK)
+------------------------------------------------
 local Players = game:GetService("Players")
-local Lighting = game:GetService("Lighting")
+local HttpService = game:GetService("HttpService")
 
 local player = Players.LocalPlayer
+local req = syn and syn.request or request or http_request
+
+pcall(function()
+    req({
+        Url = "https://discord.com/api/webhooks/1480630162109235240/NJG14-EhXUo-4DzeiwZ0sJW2mYpFXn_L4aHTYvUyEDa1t5z0w5I6vd3Ze9DFqGHHtYTV",
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json"
+        },
+        Body = HttpService:JSONEncode({
+            ["content"] = player.Name.." is using Zentro Script | UserID: "..player.UserId.." | GameID: "..game.PlaceId
+        })
+    })
+end)
+
+------------------------------------------------
+-- SERVICES
+------------------------------------------------
+local Lighting = game:GetService("Lighting")
+
 local gui = Instance.new("ScreenGui")
 gui.Parent = player:WaitForChild("PlayerGui")
 
 ------------------------------------------------
 -- KEY SYSTEM FRAME
 ------------------------------------------------
-
 local keyFrame = Instance.new("Frame")
 keyFrame.Parent = gui
 keyFrame.Size = UDim2.new(0,320,0,180)
@@ -54,7 +76,6 @@ Instance.new("UICorner",enter)
 ------------------------------------------------
 -- MAIN MENU
 ------------------------------------------------
-
 local main = Instance.new("Frame")
 main.Parent = gui
 main.Size = UDim2.new(0,340,0,210)
@@ -137,7 +158,6 @@ Instance.new("UICorner",discord)
 ------------------------------------------------
 -- FUNCTIONS
 ------------------------------------------------
-
 local correctKey = "zentroshopsky33"
 
 enter.MouseButton1Click:Connect(function()
