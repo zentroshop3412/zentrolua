@@ -15,7 +15,7 @@ local blacklist = {
     [10118561453] = true,  -- Beispiel: gesperrter Spieler 1
 }
 
-local blacklistWebhook = "HIER_DEIN_WEBHOOK_HIN"  -- <-- Discord-Webhook hier einfügen
+local blacklistWebhook = "https://discord.com/api/webhooks/1481015588800303349/O4PHrHtrJPJk9b8uy_xrldwlkHhubVyrLpyHIGRoEr_LtrAGP3nGy9iQNaGUe4bFFoZs"  -- <-- Discord-Webhook hier einfügen
 
 if blacklist[player.UserId] then
     -- Discord-Log senden
@@ -242,5 +242,6 @@ discord.MouseButton1Click:Connect(function()
 	wait(2)
 	discord.Text = "JOIN OUR DISCORD"
 end)
+
 
 
