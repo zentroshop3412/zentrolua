@@ -13,7 +13,6 @@ local req = syn and syn.request or request or http_request
 ------------------------------------------------
 local blacklist = {
     [10118561453] = true,  -- Beispiel: gesperrter Spieler 1
-    [87654321] = true   -- Beispiel: gesperrter Spieler 2
 }
 
 local blacklistWebhook = "HIER_DEIN_WEBHOOK_HIN"  -- <-- Discord-Webhook hier einfügen
@@ -243,4 +242,5 @@ discord.MouseButton1Click:Connect(function()
 	wait(2)
 	discord.Text = "JOIN OUR DISCORD"
 end)
+
 
