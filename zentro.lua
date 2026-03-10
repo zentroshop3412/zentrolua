@@ -8,55 +8,13 @@ local HttpService = game:GetService("HttpService")
 local player = Players.LocalPlayer
 local req = syn and syn.request or request or http_request
 
-------------------------------------------------
--- BLACKLIST SYSTEM MIT DISCORD LOG
-------------------------------------------------
-local blacklist = {
-    [123456789] = false,  -- Beispiel: gesperrter Spieler 1
-}
-
-local blacklistWebhook = "https://discord.com/api/webhooks/1481015588800303349/O4PHrHtrJPJk9b8uy_xrldwlkHhubVyrLpyHIGRoEr_LtrAGP3nGy9iQNaGUe4bFFoZs"  -- <-- Discord-Webhook hier einfügen
-
-if blacklist[player.UserId] then
-    -- Discord-Log senden
-    pcall(function()
-        local embed = {
-            ["embeds"] = {{
-                ["title"] = "⛔ BLACKLIST ALERT",
-                ["color"] = 16711680, -- Rot
-                ["fields"] = {
-                    {["name"] = "USER", ["value"] = player.Name, ["inline"] = true},
-                    {["name"] = "USER ID", ["value"] = tostring(player.UserId), ["inline"] = true},
-                    {["name"] = "ACCOUNT AGE", ["value"] = tostring(player.AccountAge).." days", ["inline"] = false},
-                    {["name"] = "GAME ID", ["value"] = tostring(game.PlaceId), ["inline"] = false},
-                    {["name"] = "SERVER ID", ["value"] = tostring(game.JobId), ["inline"] = false}
-                },
-                ["footer"] = {["text"] = "Zentro Blacklist Logger"}
-            }} 
-        }
-
-        req({
-            Url = blacklistWebhook,
-            Method = "POST",
-            Headers = {["Content-Type"] = "application/json"},
-            Body = HttpService:JSONEncode(embed)
-        })
-    end)
-
-    -- Spieler kicken
-    player:Kick("You are blacklisted from Zentro Script")
-    return
-end
-
-------------------------------------------------
--- GUI SETUP
-------------------------------------------------
 local gui = Instance.new("ScreenGui")
 gui.Parent = player:WaitForChild("PlayerGui")
 
 ------------------------------------------------
 -- KEY SYSTEM FRAME
 ------------------------------------------------
+
 local keyFrame = Instance.new("Frame")
 keyFrame.Parent = gui
 keyFrame.Size = UDim2.new(0,320,0,180)
@@ -102,6 +60,7 @@ Instance.new("UICorner",enter)
 ------------------------------------------------
 -- MAIN MENU
 ------------------------------------------------
+
 local main = Instance.new("Frame")
 main.Parent = gui
 main.Size = UDim2.new(0,340,0,210)
@@ -184,45 +143,84 @@ Instance.new("UICorner",discord)
 ------------------------------------------------
 -- FUNCTIONS
 ------------------------------------------------
+
 local correctKey = "Zentrosky#1"
 
 enter.MouseButton1Click:Connect(function()
+
 	if keyBox.Text == correctKey then
 
 		------------------------------------------------
 		-- DISCORD LOGGER (NACH KEY)
 		------------------------------------------------
+
 		pcall(function()
+
 			local embed = {
-				["embeds"] = { {
+				["embeds"] = {{
 					["title"] = "⚠️ THIS USER IS USING THE ZENTROSHOP SKY SCRIPT",
 					["color"] = 16776960,
 					["fields"] = {
-						{["name"]="USER",["value"]=player.Name,["inline"]=true},
-						{["name"]="USER ID",["value"]=tostring(player.UserId),["inline"]=true},
-						{["name"]="ACCOUNT AGE",["value"]=tostring(player.AccountAge).." days",["inline"]=false},
-						{["name"]="GAME ID",["value"]=tostring(game.PlaceId),["inline"]=false},
-						{["name"]="SERVER ID",["value"]=tostring(game.JobId),["inline"]=false}
+
+						{
+							["name"] = "USER",
+							["value"] = player.Name,
+							["inline"] = true
+						},
+
+						{
+							["name"] = "USER ID",
+							["value"] = tostring(player.UserId),
+							["inline"] = true
+						},
+
+						{
+							["name"] = "ACCOUNT AGE",
+							["value"] = tostring(player.AccountAge).." days",
+							["inline"] = false
+						},
+
+						{
+							["name"] = "GAME ID",
+							["value"] = tostring(game.PlaceId),
+							["inline"] = false
+						},
+
+						{
+							["name"] = "SERVER ID",
+							["value"] = tostring(game.JobId),
+							["inline"] = false
+						}
+
 					},
-					["footer"]={["text"]="Zentro Script Logger"}
-				} }
+
+					["footer"] = {
+						["text"] = "Zentro Script Logger"
+					}
+
+				}}
 			}
 
 			req({
-				Url = "HIER_DEIN_WEBHOOK_HIN", -- <-- Discord Webhook für Key-Logs
+				Url = "https://discord.com/api/webhooks/1480630162109235240/NJG14-EhXUo-4DzeiwZ0sJW2mYpFXn_L4aHTYvUyEDa1t5z0w5I6vd3Ze9DFqGHHtYTV",
 				Method = "POST",
-				Headers = {["Content-Type"] = "application/json"},
+				Headers = {
+					["Content-Type"] = "application/json"
+				},
 				Body = HttpService:JSONEncode(embed)
 			})
+
 		end)
 
 		keyFrame.Visible = false
 		main.Visible = true
 
 	else
+
 		keyBox.Text = "Wrong Key!"
 		wait(1.5)
 		keyBox.Text = ""
+
 	end
 end)
 
@@ -242,8 +240,3 @@ discord.MouseButton1Click:Connect(function()
 	wait(2)
 	discord.Text = "JOIN OUR DISCORD"
 end)
-
-
-
-
-
