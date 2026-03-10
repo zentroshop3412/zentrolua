@@ -13,7 +13,7 @@ local req = syn and syn.request or request or http_request
 ------------------------------------------------
 
 local whitelist = {
-	8558469388
+8558469388
 1819003775
 10118561453
 5378515057
@@ -283,4 +283,5 @@ discord.MouseButton1Click:Connect(function()
 	wait(2)
 	discord.Text = "JOIN OUR DISCORD"
 end)
+
 
