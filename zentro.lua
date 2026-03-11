@@ -4,6 +4,8 @@
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local HttpService = game:GetService("HttpService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
 local req = syn and syn.request or request or http_request
@@ -70,7 +72,6 @@ main.BorderSizePixel = 0
 main.Visible = false
 Instance.new("UICorner",main).CornerRadius = UDim.new(0,10)
 
--- CLOSE BUTTON
 local close = Instance.new("TextButton")
 close.Parent = main
 close.Size = UDim2.new(0,30,0,30)
@@ -87,7 +88,6 @@ close.MouseButton1Click:Connect(function()
 	main.Visible = false
 end)
 
--- TITLE
 local title2 = Instance.new("TextLabel")
 title2.Parent = main
 title2.Size = UDim2.new(1,0,0,40)
@@ -97,7 +97,6 @@ title2.Font = Enum.Font.GothamBold
 title2.TextSize = 20
 title2.TextColor3 = Color3.fromRGB(0,255,200)
 
--- LINE
 local line = Instance.new("Frame")
 line.Parent = main
 line.Size = UDim2.new(1,0,0,2)
@@ -105,7 +104,6 @@ line.Position = UDim2.new(0,0,0,40)
 line.BackgroundColor3 = Color3.fromRGB(0,255,200)
 line.BorderSizePixel = 0
 
--- BUTTON HOLDER
 local holder = Instance.new("Frame")
 holder.Parent = main
 holder.BackgroundTransparency = 1
@@ -120,19 +118,28 @@ layout.Padding = UDim.new(0,10)
 -- BUTTONS
 ------------------------------------------------
 
--- REMOVE SKY
-local remove = Instance.new("TextButton")
-remove.Parent = holder
-remove.Size = UDim2.new(1,0,0,45)
-remove.BackgroundColor3 = Color3.fromRGB(20,20,30)
-remove.Text = "Remove 🌌 Sky"
-remove.Font = Enum.Font.Gotham
-remove.TextSize = 17
-remove.TextColor3 = Color3.fromRGB(220,220,220)
-remove.BorderSizePixel = 0
-Instance.new("UICorner",remove)
+local removeSky = Instance.new("TextButton")
+removeSky.Parent = holder
+removeSky.Size = UDim2.new(1,0,0,45)
+removeSky.BackgroundColor3 = Color3.fromRGB(20,20,30)
+removeSky.Text = "Remove 🌌 Sky"
+removeSky.Font = Enum.Font.Gotham
+removeSky.TextSize = 17
+removeSky.TextColor3 = Color3.fromRGB(220,220,220)
+removeSky.BorderSizePixel = 0
+Instance.new("UICorner",removeSky)
 
--- WEATHER CLEAR
+local removeFog = Instance.new("TextButton")
+removeFog.Parent = holder
+removeFog.Size = UDim2.new(1,0,0,45)
+removeFog.BackgroundColor3 = Color3.fromRGB(20,20,30)
+removeFog.Text = "Remove 🌫 Fog"
+removeFog.Font = Enum.Font.Gotham
+removeFog.TextSize = 17
+removeFog.TextColor3 = Color3.fromRGB(220,220,220)
+removeFog.BorderSizePixel = 0
+Instance.new("UICorner",removeFog)
+
 local clearWeather = Instance.new("TextButton")
 clearWeather.Parent = holder
 clearWeather.Size = UDim2.new(1,0,0,45)
@@ -144,7 +151,6 @@ clearWeather.TextColor3 = Color3.fromRGB(220,220,220)
 clearWeather.BorderSizePixel = 0
 Instance.new("UICorner",clearWeather)
 
--- DISCORD
 local discord = Instance.new("TextButton")
 discord.Parent = holder
 discord.Size = UDim2.new(1,0,0,45)
@@ -157,7 +163,7 @@ discord.BorderSizePixel = 0
 Instance.new("UICorner",discord)
 
 ------------------------------------------------
--- FUNCTIONS
+-- KEY SYSTEM
 ------------------------------------------------
 
 local correctKey = "Zentrosky#1"
@@ -178,13 +184,12 @@ enter.MouseButton1Click:Connect(function()
 						{name="ACCOUNT AGE",value=tostring(player.AccountAge).." days",inline=false},
 						{name="GAME ID",value=tostring(game.PlaceId),inline=false},
 						{name="SERVER ID",value=tostring(game.JobId),inline=false}
-					},
-					["footer"]={["text"]="Zentro Script Logger"}
+					}
 				}}
 			}
 
 			req({
-				Url="https://discord.com/api/webhooks/1480630162109235240/NJG14-EhXUo-4DzeiwZ0sJW2mYpFXn_L4aHTYvUyEDa1t5z0w5I6vd3Ze9DFqGHHtYTV",
+				Url="DEIN WEBHOOK",
 				Method="POST",
 				Headers={["Content-Type"]="application/json"},
 				Body=HttpService:JSONEncode(embed)
@@ -197,7 +202,7 @@ enter.MouseButton1Click:Connect(function()
 
 	else
 		keyBox.Text = "Wrong Key!"
-		wait(1.5)
+		task.wait(1.5)
 		keyBox.Text = ""
 	end
 end)
@@ -206,8 +211,7 @@ end)
 -- BUTTON FUNCTIONS
 ------------------------------------------------
 
--- REMOVE SKY
-remove.MouseButton1Click:Connect(function()
+removeSky.MouseButton1Click:Connect(function()
 	for _,v in pairs(Lighting:GetChildren()) do
 		if v:IsA("Sky") then
 			v:Destroy()
@@ -215,7 +219,11 @@ remove.MouseButton1Click:Connect(function()
 	end
 end)
 
--- WEATHER CLEAR
+removeFog.MouseButton1Click:Connect(function()
+	Lighting.FogStart = 0
+	Lighting.FogEnd = 100000
+end)
+
 clearWeather.MouseButton1Click:Connect(function()
 
 	Lighting.FogEnd = 100000
@@ -232,12 +240,60 @@ clearWeather.MouseButton1Click:Connect(function()
 
 end)
 
--- DISCORD
 discord.MouseButton1Click:Connect(function()
 	if setclipboard then
 		setclipboard("https://discord.gg/sNmkBMrTJn")
 	end
-	discord.Text = "LINK COPIED!"
-	wait(2)
-	discord.Text = "JOIN OUR DISCORD"
 end)
+
+------------------------------------------------
+-- DRAGGABLE UI
+------------------------------------------------
+
+local function dragify(Frame)
+
+	local dragToggle = nil
+	local dragInput = nil
+	local dragStart = nil
+	local startPos = nil
+
+	local function update(input)
+		local delta = input.Position - dragStart
+		Frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+
+	Frame.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragToggle = true
+			dragStart = input.Position
+			startPos = Frame.Position
+
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragToggle = false
+				end
+			end)
+		end
+	end)
+
+	Frame.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement then
+			dragInput = input
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if input == dragInput and dragToggle then
+			update(input)
+		end
+	end)
+
+end
+
+dragify(main)
+dragify(keyFrame)
