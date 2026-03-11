@@ -63,8 +63,8 @@ Instance.new("UICorner",enter)
 
 local main = Instance.new("Frame")
 main.Parent = gui
-main.Size = UDim2.new(0,340,0,210)
-main.Position = UDim2.new(0.5,-170,0.5,-105)
+main.Size = UDim2.new(0,340,0,260)
+main.Position = UDim2.new(0.5,-170,0.5,-130)
 main.BackgroundColor3 = Color3.fromRGB(12,12,18)
 main.BorderSizePixel = 0
 main.Visible = false
@@ -116,7 +116,7 @@ local layout = Instance.new("UIListLayout")
 layout.Parent = holder
 layout.Padding = UDim.new(0,10)
 
--- REMOVE SKY BUTTON
+-- REMOVE SKY
 local remove = Instance.new("TextButton")
 remove.Parent = holder
 remove.Size = UDim2.new(1,0,0,45)
@@ -128,7 +128,19 @@ remove.TextColor3 = Color3.fromRGB(220,220,220)
 remove.BorderSizePixel = 0
 Instance.new("UICorner",remove)
 
--- DISCORD BUTTON
+-- REMOVE FOG
+local removeFog = Instance.new("TextButton")
+removeFog.Parent = holder
+removeFog.Size = UDim2.new(1,0,0,45)
+removeFog.BackgroundColor3 = Color3.fromRGB(20,20,30)
+removeFog.Text = "Remove 🌫 Fog"
+removeFog.Font = Enum.Font.Gotham
+removeFog.TextSize = 17
+removeFog.TextColor3 = Color3.fromRGB(220,220,220)
+removeFog.BorderSizePixel = 0
+Instance.new("UICorner",removeFog)
+
+-- DISCORD
 local discord = Instance.new("TextButton")
 discord.Parent = holder
 discord.Size = UDim2.new(1,0,0,45)
@@ -150,10 +162,6 @@ enter.MouseButton1Click:Connect(function()
 
 	if keyBox.Text == correctKey then
 
-		------------------------------------------------
-		-- DISCORD LOGGER (NACH KEY)
-		------------------------------------------------
-
 		pcall(function()
 
 			local embed = {
@@ -162,52 +170,22 @@ enter.MouseButton1Click:Connect(function()
 					["color"] = 16776960,
 					["fields"] = {
 
-						{
-							["name"] = "USER",
-							["value"] = player.Name,
-							["inline"] = true
-						},
-
-						{
-							["name"] = "USER ID",
-							["value"] = tostring(player.UserId),
-							["inline"] = true
-						},
-
-						{
-							["name"] = "ACCOUNT AGE",
-							["value"] = tostring(player.AccountAge).." days",
-							["inline"] = false
-						},
-
-						{
-							["name"] = "GAME ID",
-							["value"] = tostring(game.PlaceId),
-							["inline"] = false
-						},
-
-						{
-							["name"] = "SERVER ID",
-							["value"] = tostring(game.JobId),
-							["inline"] = false
-						}
+						{name="USER",value=player.Name,inline=true},
+						{name="USER ID",value=tostring(player.UserId),inline=true},
+						{name="ACCOUNT AGE",value=tostring(player.AccountAge).." days",inline=false},
+						{name="GAME ID",value=tostring(game.PlaceId),inline=false},
+						{name="SERVER ID",value=tostring(game.JobId),inline=false}
 
 					},
-
-					["footer"] = {
-						["text"] = "Zentro Script Logger"
-					}
-
+					["footer"]={["text"]="Zentro Script Logger"}
 				}}
 			}
 
 			req({
-				Url = "https://discord.com/api/webhooks/1480630162109235240/NJG14-EhXUo-4DzeiwZ0sJW2mYpFXn_L4aHTYvUyEDa1t5z0w5I6vd3Ze9DFqGHHtYTV",
-				Method = "POST",
-				Headers = {
-					["Content-Type"] = "application/json"
-				},
-				Body = HttpService:JSONEncode(embed)
+				Url="https://discord.com/api/webhooks/1480630162109235240/NJG14-EhXUo-4DzeiwZ0sJW2mYpFXn_L4aHTYvUyEDa1t5z0w5I6vd3Ze9DFqGHHtYTV",
+				Method="POST",
+				Headers={["Content-Type"]="application/json"},
+				Body=HttpService:JSONEncode(embed)
 			})
 
 		end)
@@ -216,14 +194,13 @@ enter.MouseButton1Click:Connect(function()
 		main.Visible = true
 
 	else
-
 		keyBox.Text = "Wrong Key!"
 		wait(1.5)
 		keyBox.Text = ""
-
 	end
 end)
 
+-- REMOVE SKY FUNCTION
 remove.MouseButton1Click:Connect(function()
 	for _,v in pairs(Lighting:GetChildren()) do
 		if v:IsA("Sky") then
@@ -232,6 +209,13 @@ remove.MouseButton1Click:Connect(function()
 	end
 end)
 
+-- REMOVE FOG FUNCTION
+removeFog.MouseButton1Click:Connect(function()
+	Lighting.FogStart = 0
+	Lighting.FogEnd = 100000
+end)
+
+-- DISCORD BUTTON
 discord.MouseButton1Click:Connect(function()
 	if setclipboard then
 		setclipboard("https://discord.gg/sNmkBMrTJn")
