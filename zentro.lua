@@ -160,7 +160,7 @@ Instance.new("UICorner",discord)
 -- KEY SYSTEM + LOGGER
 ------------------------------------------------
 
-local correctKey = "Zentrosky#1"
+local correctKey = "fuckabdull23"
 
 enter.MouseButton1Click:Connect(function()
 
