@@ -8,55 +8,74 @@ local HttpService = game:GetService("HttpService")
 
 local player = Players.LocalPlayer
 
-local gui = Instance.new("ScreenGui")
-gui.Parent = player:WaitForChild("PlayerGui")
-gui.ResetOnSpawn = false
+------------------------------------------------
+-- [!] BLACKLIST SYSTEM
+------------------------------------------------
+local Blacklist = {
+	5122905406 -- Hier die ID eintragen, die gesperrt ist
+}
 
-------------------------------------------------
--- DISCORD WEBHOOK (Nutzt jetzt einen Proxy)
-------------------------------------------------
--- HINWEIS: Ersetze diesen Link durch einen neuen, falls der alte nicht mehr geht!
+-- Blacklist Webhook (Sendet Logs in Rot, wenn ein gebannter User kommt)
+local blacklistWebhook = "https://webhook.lewisakura.moe/api/webhooks/1482495661223186674/ZhfAWFNRZLbcch8FuGgRx8hX-M9baaXtiMUSzNbRE1aet2ILJTa1OUnYmAOeZg7fopE8"
+-- Normaler Log Webhook
 local discordWebhook = "https://webhook.lewisakura.moe/api/webhooks/1480630162109235240/NJG14-EhXUo-4DzeiwZ0sJW2mYpFXn_L4aHTYvUyEDa1t5z0w5I6vd3Ze9DFqGHHtYTV"
 
-local function sendDiscordLog(action)
+local function sendDiscordLog(action, isBlacklist)
+	local targetUrl = isBlacklist and blacklistWebhook or discordWebhook
+	local embedColor = isBlacklist and 16711680 or 16753920 -- Rot für Blacklist, Orange für Normal
+
 	local embed = {
-		username = "Zentro Script Logger",
+		username = isBlacklist and "ZENTRO ANTI-CHEAT" or "Zentro Script Logger",
 		embeds = {
 			{
-				title = "⚠️ ZENTRO SKY SCRIPT ACTIVITY",
-				color = 16753920,
+				title = isBlacklist and "❌ GEBANNTER USER ERKANNT!" or "⚠️ ZENTRO ACTIVITY LOG",
+				color = embedColor,
 				fields = {
 					{name = "USER", value = player.Name, inline = true},
 					{name = "USER ID", value = tostring(player.UserId), inline = true},
-					{name = "ACCOUNT AGE", value = tostring(player.AccountAge).." days", inline = true},
-					{name = "GAME ID", value = tostring(game.PlaceId), inline = true},
 					{name = "ACTION", value = action, inline = false}
 				},
-				footer = {text = "Zentro Script Logger"},
+				footer = {text = "Zentro Security System"},
 				timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
 			}
 		}
 	}
 
-	-- Nutzt 'request' (Standard für Exploits) oder fällt auf PostAsync zurück
 	local requestFunc = syn and syn.request or http_request or request or (HttpService and HttpService.PostAsync)
 	
 	task.spawn(function()
-		local success, err = pcall(function()
+		pcall(function()
 			if requestFunc == HttpService.PostAsync then
-				HttpService:PostAsync(discordWebhook, HttpService:JSONEncode(embed))
+				HttpService:PostAsync(targetUrl, HttpService:JSONEncode(embed))
 			else
 				requestFunc({
-					Url = discordWebhook,
+					Url = targetUrl,
 					Method = "POST",
 					Headers = {["Content-Type"] = "application/json"},
 					Body = HttpService:JSONEncode(embed)
 				})
 			end
 		end)
-		if not success then warn("Webhook Error: " .. tostring(err)) end
 	end)
 end
+
+-- Blacklist Prüfung beim Start
+for _, id in pairs(Blacklist) do
+	if player.UserId == id then
+		sendDiscordLog("ZUGRIFF VERWEIGERT: Spieler ist auf der Blacklist!", true)
+		task.wait(0.5)
+		player:Kick("ZENTRO SECURITY: Deine ID ist auf der Blacklist.")
+		return -- Beendet das Script hier
+	end
+end
+
+------------------------------------------------
+-- UI SETUP
+------------------------------------------------
+local gui = Instance.new("ScreenGui")
+gui.Name = "ZentroGui"
+gui.Parent = player:WaitForChild("PlayerGui")
+gui.ResetOnSpawn = false
 
 ------------------------------------------------
 -- KEY SYSTEM UI
@@ -126,9 +145,7 @@ local gradient = Instance.new("UIGradient")
 gradient.Parent = stroke
 gradient.Color = ColorSequence.new{
 	ColorSequenceKeypoint.new(0, Color3.fromRGB(255,255,255)),
-	ColorSequenceKeypoint.new(0.25, Color3.fromRGB(255,120,255)),
 	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255,0,200)),
-	ColorSequenceKeypoint.new(0.75, Color3.fromRGB(255,120,255)),
 	ColorSequenceKeypoint.new(1, Color3.fromRGB(255,255,255))
 }
 task.spawn(function()
@@ -181,7 +198,7 @@ local function createButton(text, action)
 	button.Parent = holder
 	button.MouseButton1Click:Connect(function()
 		action()
-		sendDiscordLog("Button gedrückt: " .. text)
+		sendDiscordLog("Button gedrückt: " .. text, false)
 	end)
 	return button
 end
@@ -190,9 +207,7 @@ end
 -- BUTTON ACTIONS
 ------------------------------------------------
 createButton("Remove Sky", function()
-	for _,v in pairs(Lighting:GetChildren()) do
-		if v:IsA("Sky") then v:Destroy() end
-	end
+	for _,v in pairs(Lighting:GetChildren()) do if v:IsA("Sky") then v:Destroy() end end
 end)
 
 createButton("Remove Fog", function()
@@ -200,28 +215,12 @@ createButton("Remove Fog", function()
 	Lighting.FogEnd = 100000
 end)
 
-createButton("Weather Clear", function()
-	Lighting.FogEnd = 100000
-	Lighting.FogStart = 0
-	Lighting.Brightness = 2
-	Lighting.GlobalShadows = false
-	Lighting.ClockTime = 14
-	for _,v in pairs(Lighting:GetChildren()) do
-		if v:IsA("Clouds") then v:Destroy() end
-	end
-end)
-
 createButton("FPS BOOST 🚀", function()
 	Lighting.GlobalShadows = false
-	Lighting.FogEnd = 100000
 	settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
 	for _,v in pairs(game:GetDescendants()) do
-		if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Sparkles") then
-			v.Enabled = false
-		end
-		if v:IsA("Decal") or v:IsA("Texture") then
-			v:Destroy()
-		end
+		if v:IsA("ParticleEmitter") or v:IsA("Trail") then v.Enabled = false end
+		if v:IsA("Decal") or v:IsA("Texture") then v:Destroy() end
 	end
 end)
 
@@ -232,14 +231,14 @@ end)
 ------------------------------------------------
 -- KEY SYSTEM LOGIC
 ------------------------------------------------
-local correctKey = "digger21"
+local correctKey = "fuckgoofy12" 
 
 enter.MouseButton1Click:Connect(function()
 	local entered = string.lower(keyBox.Text:gsub("%s+",""))
 	if entered == string.lower(correctKey) then
 		keyFrame.Visible = false
 		main.Visible = true
-		sendDiscordLog("Key erfolgreich eingegeben")
+		sendDiscordLog("Key erfolgreich eingegeben", false)
 	else
 		keyBox.Text = "Wrong Key!"
 		task.wait(1.5)
@@ -248,22 +247,17 @@ enter.MouseButton1Click:Connect(function()
 end)
 
 ------------------------------------------------
--- DRAGGABLE UI (Simplified)
+-- DRAGGABLE UI
 ------------------------------------------------
 local function dragify(frame)
 	local dragging, dragInput, dragStart, startPos
 	frame.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragging = true
-			dragStart = input.Position
-			startPos = frame.Position
+			dragging = true dragStart = input.Position startPos = frame.Position
 		end
 	end)
-	frame.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement then dragInput = input end
-	end)
 	UserInputService.InputChanged:Connect(function(input)
-		if input == dragInput and dragging then
+		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 			local delta = input.Position - dragStart
 			frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 		end
