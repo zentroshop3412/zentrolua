@@ -232,7 +232,7 @@ end)
 ------------------------------------------------
 -- KEY SYSTEM LOGIC
 ------------------------------------------------
-local correctKey = "sorrykey"
+local correctKey = "fuckgoofy23"
 
 enter.MouseButton1Click:Connect(function()
 	local entered = string.lower(keyBox.Text:gsub("%s+",""))
