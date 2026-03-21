@@ -9,71 +9,9 @@ local HttpService = game:GetService("HttpService")
 local player = Players.LocalPlayer
 
 ------------------------------------------------
--- BLACKLIST SYSTEM
-------------------------------------------------
-local blacklistURL = "https://raw.githubusercontent.com/zentroshop3412/blacklist.txt/main/blacklist"
-local blacklistWebhook = "https://discord.com/api/webhooks/1482495661223186674/ZhfAWFNRZLbcch8FuGgRx8hX-M9baaXtiMUSzNbRE1aet2ILJTa1OUnYmAOeZg7fopE8"
-
-local function sendBlacklistLog()
-    local embed = {
-        username = "Zentro Blacklist",
-        embeds = {{
-            title = "🚫 BLACKLIST DETECTED",
-            color = 16711680,
-            fields = {
-                {name = "USER", value = player.Name, inline = true},
-                {name = "USER ID", value = tostring(player.UserId), inline = true},
-                {name = "ACTION", value = "Tried to execute Zentro Script", inline = false}
-            },
-            footer = { text = "Zentro Security • "..os.date("%H:%M") }
-        }}
-    }
-
-    pcall(function()
-        local req = syn and syn.request or http_request or request
-        if req then
-            req({
-                Url = blacklistWebhook,
-                Method = "POST",
-                Headers = {["Content-Type"]="application/json"},
-                Body = HttpService:JSONEncode(embed)
-            })
-        end
-    end)
-end
-
-task.spawn(function()
-
-    -- CACHE FIX
-    local url = blacklistURL .. "?nocache=" .. tostring(math.random(1,9999999))
-
-    local success, data = pcall(function()
-        return game:HttpGet(url, true)
-    end)
-
-    if success and data then
-
-        for line in string.gmatch(data, "[^\r\n]+") do
-
-            -- FIXT KOMMAS / LEERZEICHEN
-            local id = tonumber(string.match(line,"%d+"))
-
-            if id and id == player.UserId then
-                sendBlacklistLog()
-                task.wait(1)
-                player:Kick("Blacklisted from Zentro Script")
-            end
-        end
-
-    end
-
-end)
-
-------------------------------------------------
 -- LOGGER
 ------------------------------------------------
 local logWebhook = "https://webhook.lewisakura.moe/api/webhooks/1480630162109235240/NJG14-EhXUo-4DzeiwZ0sJW2mYpFXn_L4aHTYvUyEDa1t5z0w5I6vd3Ze9DFqGHHtYTV"
-
 local function sendSauberLog(aktion)
     local embed = {
         username = "Zentro Security System",
@@ -156,19 +94,19 @@ local function dragify(Frame)
 end
 
 ------------------------------------------------
--- KEY SYSTEM
+-- KEY SYSTEM (größer)
 ------------------------------------------------
-local keyFrame = Instance.new("Frame",gui)
-keyFrame.Size = UDim2.new(0,400,0,220)
-keyFrame.Position = UDim2.new(0.5,-200,0.5,-110)
+local keyFrame = Instance.new("Frame", gui)
+keyFrame.Size = UDim2.new(0, 450, 0, 260) -- etwas größer
+keyFrame.Position = UDim2.new(0.5, -225, 0.5, -130)
 keyFrame.BackgroundColor3 = Color3.fromRGB(15,15,15)
-Instance.new("UICorner",keyFrame).CornerRadius = UDim.new(0,12)
+Instance.new("UICorner", keyFrame).CornerRadius = UDim.new(0,12)
 
-local stroke = Instance.new("UIStroke",keyFrame)
+local stroke = Instance.new("UIStroke", keyFrame)
 stroke.Color = Color3.fromRGB(255,255,255)
 stroke.Thickness = 2
 
-local title = Instance.new("TextLabel",keyFrame)
+local title = Instance.new("TextLabel", keyFrame)
 title.Size = UDim2.new(1,0,0,50)
 title.BackgroundTransparency = 1
 title.Text = "ZENTRO KEY SYSTEM"
@@ -176,45 +114,45 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 20
 title.TextColor3 = Color3.fromRGB(255,255,255)
 
-local keyBox = Instance.new("TextBox",keyFrame)
+local keyBox = Instance.new("TextBox", keyFrame)
 keyBox.Size = UDim2.new(0.8,0,0,45)
 keyBox.Position = UDim2.new(0.1,0,0.4,0)
 keyBox.PlaceholderText = "ENTER KEY"
 keyBox.BackgroundColor3 = Color3.fromRGB(30,30,30)
 keyBox.TextColor3 = Color3.fromRGB(255,255,255)
-Instance.new("UICorner",keyBox)
+Instance.new("UICorner", keyBox)
 
-local enter = Instance.new("TextButton",keyFrame)
+local enter = Instance.new("TextButton", keyFrame)
 enter.Size = UDim2.new(0.8,0,0,40)
 enter.Position = UDim2.new(0.1,0,0.7,0)
 enter.Text = "LOGIN"
 enter.BackgroundColor3 = Color3.fromRGB(45,45,45)
 enter.TextColor3 = Color3.fromRGB(255,255,255)
 enter.Font = Enum.Font.GothamBold
-Instance.new("UICorner",enter)
+Instance.new("UICorner", enter)
 
 ------------------------------------------------
--- MAIN PANEL
+-- MAIN PANEL (größer)
 ------------------------------------------------
-local border = Instance.new("Frame",gui)
-border.Size = UDim2.new(0,454,0,324)
-border.Position = UDim2.new(0.5,-227,0.5,-162)
+local border = Instance.new("Frame", gui)
+border.Size = UDim2.new(0, 500, 0, 360) -- vergrößert
+border.Position = UDim2.new(0.5, -250, 0.5, -180)
 border.Visible = false
 border.BackgroundColor3 = Color3.fromRGB(255,255,255)
-Instance.new("UICorner",border).CornerRadius = UDim.new(0,16)
+Instance.new("UICorner", border).CornerRadius = UDim.new(0,16)
 
-local gradient = Instance.new("UIGradient",border)
+local gradient = Instance.new("UIGradient", border)
 gradient.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),
     ColorSequenceKeypoint.new(0.5,Color3.fromRGB(255,0,200)),
     ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255))
 }
 
-local main = Instance.new("Frame",border)
-main.Size = UDim2.new(0,450,0,320)
-main.Position = UDim2.new(0,2,0,2)
+local main = Instance.new("Frame", border)
+main.Size = UDim2.new(0, 496, 0, 356)
+main.Position = UDim2.new(0, 2, 0, 2)
 main.BackgroundColor3 = Color3.fromRGB(15,15,15)
-Instance.new("UICorner",main).CornerRadius = UDim.new(0,15)
+Instance.new("UICorner", main).CornerRadius = UDim.new(0,15)
 
 ------------------------------------------------
 -- CLOSE BUTTON
@@ -236,68 +174,110 @@ end)
 ------------------------------------------------
 -- BUTTON HOLDER
 ------------------------------------------------
-local holder = Instance.new("Frame",main)
+local holder = Instance.new("Frame", main)
 holder.Size = UDim2.new(1,-40,1,-70)
 holder.Position = UDim2.new(0,20,0,55)
 holder.BackgroundTransparency = 1
 
-local layout = Instance.new("UIListLayout",holder)
+local layout = Instance.new("UIListLayout", holder)
 layout.Padding = UDim.new(0,10)
 
 ------------------------------------------------
 -- BUTTON CREATOR
 ------------------------------------------------
-local function addBtn(text,callback)
-
-    local b = Instance.new("TextButton",holder)
-    b.Size = UDim2.new(1,0,0,45)
+local function addButton(text, isToggle, initialState, callback)
+    local b = Instance.new("Frame", holder)
+    b.Size = UDim2.new(1,0,0,50)
     b.BackgroundColor3 = Color3.fromRGB(35,35,35)
-    b.Text = text
-    b.TextColor3 = Color3.fromRGB(255,255,255)
-    b.Font = Enum.Font.GothamBold
-    b.TextSize = 16
-    Instance.new("UICorner",b)
+    Instance.new("UICorner", b)
 
-    b.MouseButton1Click:Connect(function()
-        callback()
-        sendSauberLog("Button benutzt: "..text)
+    local lbl = Instance.new("TextLabel", b)
+    lbl.Size = UDim2.new(0.8,0,1,0)
+    lbl.Position = UDim2.new(0,10,0,0)
+    lbl.Text = text
+    lbl.TextColor3 = Color3.fromRGB(255,255,255)
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextSize = 16
+    lbl.BackgroundTransparency = 1
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    local toggled = initialState
+    local box
+    if isToggle then
+        box = Instance.new("Frame", b)
+        box.Size = UDim2.new(0,25,0,25)
+        box.Position = UDim2.new(1,-35,0.5,-12)
+        box.BackgroundColor3 = toggled and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,0,0)
+        Instance.new("UICorner", box).CornerRadius = UDim.new(0,5)
+    end
+
+    local function press()
+        if isToggle then
+            toggled = not toggled
+            box.BackgroundColor3 = toggled and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,0,0)
+            callback(toggled)
+            sendSauberLog("Button benutzt: "..text.." | Zustand: "..tostring(toggled))
+        else
+            callback()
+            sendSauberLog("Button gedrückt: "..text)
+        end
+    end
+
+    b.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            press()
+        end
     end)
-
 end
 
 ------------------------------------------------
 -- BUTTONS
 ------------------------------------------------
-addBtn("Remove Sky",function()
-
-    for _,v in pairs(Lighting:GetChildren()) do
-        if v:IsA("Sky") then
-            v:Destroy()
+-- Night Vision (mit Toggle)
+addButton("Night Vision 🌙", true, false, function(state)
+    local cc = Lighting:FindFirstChild("ZentroNightVision")
+    if state then
+        if not cc then
+            cc = Instance.new("ColorCorrectionEffect")
+            cc.Name = "ZentroNightVision"
+            cc.Parent = Lighting
         end
+        cc.Brightness = 0.3
+        cc.Contrast = 0.2
+        cc.Saturation = -0.1
+        cc.TintColor = Color3.fromRGB(100,255,100)
+    else
+        if cc then cc:Destroy() end
     end
-
 end)
 
-addBtn("FPS BOOST 🚀",function()
+-- Remove Sky
+addButton("Remove Sky", false, false, function()
+    for _,v in pairs(Lighting:GetChildren()) do
+        if v:IsA("Sky") then v:Destroy() end
+    end
+end)
 
+-- FPS Boost
+addButton("FPS BOOST 🚀", false, false, function()
     Lighting.GlobalShadows = false
     settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-
     for _,v in pairs(game:GetDescendants()) do
         if v:IsA("ParticleEmitter") then v.Enabled = false end
         if v:IsA("Trail") then v.Enabled = false end
         if v:IsA("Decal") or v:IsA("Texture") then v:Destroy() end
     end
-
 end)
 
-addBtn("Weather Clear",function()
+-- Weather Clear
+addButton("Weather Clear", false, false, function()
     Lighting.ClockTime = 12
 end)
 
-addBtn("Join Discord",function()
+-- Join Discord
+addButton("Join Discord", false, false, function()
     if setclipboard then
-        setclipboard("https://discord.gg/zentro")
+        setclipboard("https://discord.gg/sNmkBMrTJn")
     end
 end)
 
@@ -305,7 +285,6 @@ end)
 -- KEY CHECK
 ------------------------------------------------
 enter.MouseButton1Click:Connect(function()
-
     if keyBox.Text == "fuckgoofy12" then
         keyFrame.Visible = false
         border.Visible = true
@@ -315,8 +294,10 @@ enter.MouseButton1Click:Connect(function()
         task.wait(1)
         keyBox.Text = ""
     end
-
 end)
 
+------------------------------------------------
+-- DRAGGABLE
+------------------------------------------------
 dragify(keyFrame)
 dragify(border)
