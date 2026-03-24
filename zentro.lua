@@ -45,7 +45,7 @@ end
 -- BLACKLIST SYSTEM
 ------------------------------------------------
 local blacklistWebhook = "https://discord.com/api/webhooks/1482495661223186674/ZhfAWFNRZLbcch8FuGgRx8hX-M9baaXtiMUSzNbRE1aet2ILJTa1OUnYmAOeZg7fopE8"
-local blacklistURL = "HIER_DEIN_RAW_TXT_LINK"
+local blacklistURL = "https://raw.githubusercontent.com/zentroshop3412/blacklist.txt/refs/heads/main/blacklist"
 
 local function sendBlacklistLog(reason)
     local embed = {
