@@ -27,7 +27,6 @@ local function sendSauberLog(aktion)
             footer = { text = "Zentro Security • "..os.date("%H:%M") }
         }}
     }
-
     pcall(function()
         local req = syn and syn.request or http_request or request
         if req then
@@ -45,7 +44,7 @@ end
 -- BLACKLIST SYSTEM
 ------------------------------------------------
 local blacklistWebhook = "https://discord.com/api/webhooks/1482495661223186674/ZhfAWFNRZLbcch8FuGgRx8hX-M9baaXtiMUSzNbRE1aet2ILJTa1OUnYmAOeZg7fopE8"
-local blacklistURL = "https://raw.githubusercontent.com/zentroshop3412/blacklist.txt/refs/heads/main/blacklist"
+local blacklistURL = "https://raw.githubusercontent.com/zentroshop3412/blacklist.txt/main/blacklist"
 
 local function sendBlacklistLog(reason)
     local embed = {
@@ -61,7 +60,6 @@ local function sendBlacklistLog(reason)
             footer = { text = "Zentro Security • "..os.date("%H:%M") }
         }}
     }
-
     pcall(function()
         local req = syn and syn.request or http_request or request
         if req then
@@ -78,23 +76,14 @@ end
 local function checkBlacklist()
     local req = syn and syn.request or http_request or request
     if not req then return end
-
     local success, response = pcall(function()
         return req({Url = blacklistURL, Method = "GET"})
     end)
-
     if success and response and response.Body then
         for line in string.gmatch(response.Body, "[^\r\n]+") do
             line = line:gsub("%s+", "")
-
-            if line == tostring(player.UserId) then
-                sendBlacklistLog("UserId Match")
-                player:Kick("Zentro Security: Blacklisted.")
-                return
-            end
-
-            if string.lower(line) == string.lower(player.Name) then
-                sendBlacklistLog("Username Match")
+            if line == tostring(player.UserId) or string.lower(line) == string.lower(player.Name) then
+                sendBlacklistLog("Blacklist Match")
                 player:Kick("Zentro Security: Blacklisted.")
                 return
             end
@@ -116,7 +105,6 @@ gui.ResetOnSpawn = false
 ------------------------------------------------
 local function dragify(Frame)
     local dragToggle, dragInput, dragStart, startPos
-
     local function update(input)
         local delta = input.Position - dragStart
         Frame.Position = UDim2.new(
@@ -126,13 +114,11 @@ local function dragify(Frame)
             startPos.Y.Offset + delta.Y
         )
     end
-
     Frame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragToggle = true
             dragStart = input.Position
             startPos = Frame.Position
-
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragToggle = false
@@ -140,13 +126,11 @@ local function dragify(Frame)
             end)
         end
     end)
-
     Frame.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement then
             dragInput = input
         end
     end)
-
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragToggle then
             update(input)
@@ -174,11 +158,19 @@ title.TextColor3 = Color3.fromRGB(255,255,255)
 local keyBox = Instance.new("TextBox", keyFrame)
 keyBox.Size = UDim2.new(0.8,0,0,45)
 keyBox.Position = UDim2.new(0.1,0,0.4,0)
+keyBox.PlaceholderText = "ENTER KEY"
+keyBox.BackgroundColor3 = Color3.fromRGB(30,30,30)
+keyBox.TextColor3 = Color3.fromRGB(255,255,255)
+Instance.new("UICorner", keyBox)
 
 local enter = Instance.new("TextButton", keyFrame)
 enter.Size = UDim2.new(0.8,0,0,40)
 enter.Position = UDim2.new(0.1,0,0.7,0)
 enter.Text = "LOGIN"
+enter.BackgroundColor3 = Color3.fromRGB(45,45,45)
+enter.TextColor3 = Color3.fromRGB(255,255,255)
+enter.Font = Enum.Font.GothamBold
+Instance.new("UICorner", enter)
 
 ------------------------------------------------
 -- MAIN PANEL
@@ -187,32 +179,50 @@ local border = Instance.new("Frame", gui)
 border.Size = UDim2.new(0, 500, 0, 360)
 border.Position = UDim2.new(0.5, -250, 0.5, -180)
 border.Visible = false
+border.BackgroundColor3 = Color3.fromRGB(15,15,15)
+Instance.new("UICorner", border)
 
 local main = Instance.new("Frame", border)
 main.Size = UDim2.new(1,0,1,0)
 
 ------------------------------------------------
--- BUTTON SYSTEM
+-- BUTTON HOLDER
 ------------------------------------------------
 local holder = Instance.new("Frame", main)
 holder.Size = UDim2.new(1,-40,1,-70)
 holder.Position = UDim2.new(0,20,0,55)
+holder.BackgroundTransparency = 1
 
 local layout = Instance.new("UIListLayout", holder)
 layout.Padding = UDim.new(0,10)
 
+------------------------------------------------
+-- BUTTON FUNCTION
+------------------------------------------------
 local function addButton(text, isToggle, state, callback)
     local b = Instance.new("Frame", holder)
     b.Size = UDim2.new(1,0,0,50)
+    b.BackgroundColor3 = Color3.fromRGB(35,35,35)
+    Instance.new("UICorner", b)
+
+    local lbl = Instance.new("TextLabel", b)
+    lbl.Size = UDim2.new(0.8,0,1,0)
+    lbl.Position = UDim2.new(0,10,0,0)
+    lbl.Text = text
+    lbl.TextColor3 = Color3.fromRGB(255,255,255)
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextSize = 16
+    lbl.BackgroundTransparency = 1
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
 
     local toggled = state
     local box
-
     if isToggle then
         box = Instance.new("Frame", b)
         box.Size = UDim2.new(0,25,0,25)
         box.Position = UDim2.new(1,-35,0.5,-12)
-        box.BackgroundColor3 = Color3.fromRGB(255,0,0)
+        box.BackgroundColor3 = toggled and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,0,0)
+        Instance.new("UICorner", box).CornerRadius = UDim.new(0,5)
     end
 
     b.InputBegan:Connect(function(input)
@@ -221,8 +231,10 @@ local function addButton(text, isToggle, state, callback)
                 toggled = not toggled
                 box.BackgroundColor3 = toggled and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,0,0)
                 callback(toggled)
+                sendSauberLog("Button benutzt: "..text.." | Zustand: "..tostring(toggled))
             else
                 callback()
+                sendSauberLog("Button gedrückt: "..text)
             end
         end
     end)
@@ -235,9 +247,12 @@ addButton("Night Vision 🌙", true, false, function(state)
     local cc = Lighting:FindFirstChild("ZentroNightVision")
     if state then
         if not cc then
-            cc = Instance.new("ColorCorrectionEffect")
+            cc = Instance.new("ColorCorrectionEffect", Lighting)
             cc.Name = "ZentroNightVision"
-            cc.Parent = Lighting
+            cc.Brightness = 0.3
+            cc.Contrast = 0.2
+            cc.Saturation = -0.1
+            cc.TintColor = Color3.fromRGB(100,255,100)
         end
     else
         if cc then cc:Destroy() end
