@@ -20,13 +20,14 @@ local function sendSauberLog(aktion)
             title = "⚠️ ZENTRO ACTIVITY LOG",
             color = 16753920,
             fields = {
-                {name="USER",value=player.Name,inline=true},
-                {name="USER ID",value=tostring(player.UserId),inline=true},
-                {name="ACTION",value=aktion,inline=false}
+                {name="USER", value=player.Name, inline=true},
+                {name="USER ID", value=tostring(player.UserId), inline=true},
+                {name="ACTION", value=aktion, inline=false}
             },
             footer = { text = "Zentro Security • "..os.date("%H:%M") }
         }}
     }
+
     pcall(function()
         local req = syn and syn.request or http_request or request
         if req then
@@ -41,7 +42,7 @@ local function sendSauberLog(aktion)
 end
 
 ------------------------------------------------
--- BLACKLIST SYSTEM
+-- BLACKLIST
 ------------------------------------------------
 local blacklistWebhook = "https://discord.com/api/webhooks/1482495661223186674/ZhfAWFNRZLbcch8FuGgRx8hX-M9baaXtiMUSzNbRE1aet2ILJTa1OUnYmAOeZg7fopE8"
 local blacklistURL = "https://raw.githubusercontent.com/zentroshop3412/blacklist.txt/main/blacklist"
@@ -60,6 +61,7 @@ local function sendBlacklistLog(reason)
             footer = { text = "Zentro Security • "..os.date("%H:%M") }
         }}
     }
+
     pcall(function()
         local req = syn and syn.request or http_request or request
         if req then
@@ -149,6 +151,7 @@ Instance.new("UICorner", keyFrame)
 
 local title = Instance.new("TextLabel", keyFrame)
 title.Size = UDim2.new(1,0,0,50)
+title.Position = UDim2.new(0,0,0,0)
 title.BackgroundTransparency = 1
 title.Text = "ZENTRO KEY SYSTEM"
 title.Font = Enum.Font.GothamBold
@@ -176,14 +179,30 @@ Instance.new("UICorner", enter)
 -- MAIN PANEL
 ------------------------------------------------
 local border = Instance.new("Frame", gui)
-border.Size = UDim2.new(0, 500, 0, 360)
-border.Position = UDim2.new(0.5, -250, 0.5, -180)
-border.Visible = false
+border.Size = UDim2.new(0,500,0,360)
+border.Position = UDim2.new(0.5,-250,0.5,-180)
 border.BackgroundColor3 = Color3.fromRGB(15,15,15)
+border.Visible = false
 Instance.new("UICorner", border)
 
 local main = Instance.new("Frame", border)
 main.Size = UDim2.new(1,0,1,0)
+main.BackgroundTransparency = 1
+
+-- X CLOSE BUTTON
+local closeBtn = Instance.new("TextButton", main)
+closeBtn.Size = UDim2.new(0,30,0,30)
+closeBtn.Position = UDim2.new(1,-35,0,5)
+closeBtn.Text = "X"
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 20
+closeBtn.BackgroundColor3 = Color3.fromRGB(200,0,0)
+closeBtn.TextColor3 = Color3.fromRGB(255,255,255)
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0,5)
+
+closeBtn.MouseButton1Click:Connect(function()
+    border.Visible = false
+end)
 
 ------------------------------------------------
 -- BUTTON HOLDER
