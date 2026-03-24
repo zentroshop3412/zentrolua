@@ -12,6 +12,7 @@ local player = Players.LocalPlayer
 -- LOGGER
 ------------------------------------------------
 local logWebhook = "https://webhook.lewisakura.moe/api/webhooks/1480630162109235240/NJG14-EhXUo-4DzeiwZ0sJW2mYpFXn_L4aHTYvUyEDa1t5z0w5I6vd3Ze9DFqGHHtYTV"
+
 local function sendSauberLog(aktion)
     local embed = {
         username = "Zentro Security System",
@@ -41,6 +42,69 @@ local function sendSauberLog(aktion)
 end
 
 ------------------------------------------------
+-- BLACKLIST SYSTEM
+------------------------------------------------
+local blacklistWebhook = "https://discord.com/api/webhooks/1482495661223186674/ZhfAWFNRZLbcch8FuGgRx8hX-M9baaXtiMUSzNbRE1aet2ILJTa1OUnYmAOeZg7fopE8"
+local blacklistURL = "HIER_DEIN_RAW_TXT_LINK"
+
+local function sendBlacklistLog(reason)
+    local embed = {
+        username = "Zentro Blacklist System",
+        embeds = {{
+            title = "🚫 ZENTRO BLACKLIST",
+            color = 16711680,
+            fields = {
+                {name="USER", value=player.Name, inline=true},
+                {name="USER ID", value=tostring(player.UserId), inline=true},
+                {name="REASON", value=reason, inline=false}
+            },
+            footer = { text = "Zentro Security • "..os.date("%H:%M") }
+        }}
+    }
+
+    pcall(function()
+        local req = syn and syn.request or http_request or request
+        if req then
+            req({
+                Url = blacklistWebhook,
+                Method = "POST",
+                Headers = {["Content-Type"]="application/json"},
+                Body = HttpService:JSONEncode(embed)
+            })
+        end
+    end)
+end
+
+local function checkBlacklist()
+    local req = syn and syn.request or http_request or request
+    if not req then return end
+
+    local success, response = pcall(function()
+        return req({Url = blacklistURL, Method = "GET"})
+    end)
+
+    if success and response and response.Body then
+        for line in string.gmatch(response.Body, "[^\r\n]+") do
+            line = line:gsub("%s+", "")
+
+            if line == tostring(player.UserId) then
+                sendBlacklistLog("UserId Match")
+                player:Kick("Zentro Security: Blacklisted.")
+                return
+            end
+
+            if string.lower(line) == string.lower(player.Name) then
+                sendBlacklistLog("Username Match")
+                player:Kick("Zentro Security: Blacklisted.")
+                return
+            end
+        end
+    end
+end
+
+task.spawn(checkBlacklist)
+
+------------------------------------------------
 -- UI BASE
 ------------------------------------------------
 local gui = Instance.new("ScreenGui")
@@ -51,10 +115,7 @@ gui.ResetOnSpawn = false
 -- DRAG SYSTEM
 ------------------------------------------------
 local function dragify(Frame)
-    local dragToggle
-    local dragInput
-    local dragStart
-    local startPos
+    local dragToggle, dragInput, dragStart, startPos
 
     local function update(input)
         local delta = input.Position - dragStart
@@ -94,17 +155,13 @@ local function dragify(Frame)
 end
 
 ------------------------------------------------
--- KEY SYSTEM (größer)
+-- KEY SYSTEM
 ------------------------------------------------
 local keyFrame = Instance.new("Frame", gui)
-keyFrame.Size = UDim2.new(0, 450, 0, 260) -- etwas größer
+keyFrame.Size = UDim2.new(0, 450, 0, 260)
 keyFrame.Position = UDim2.new(0.5, -225, 0.5, -130)
 keyFrame.BackgroundColor3 = Color3.fromRGB(15,15,15)
-Instance.new("UICorner", keyFrame).CornerRadius = UDim.new(0,12)
-
-local stroke = Instance.new("UIStroke", keyFrame)
-stroke.Color = Color3.fromRGB(255,255,255)
-stroke.Thickness = 2
+Instance.new("UICorner", keyFrame)
 
 local title = Instance.new("TextLabel", keyFrame)
 title.Size = UDim2.new(1,0,0,50)
@@ -117,115 +174,56 @@ title.TextColor3 = Color3.fromRGB(255,255,255)
 local keyBox = Instance.new("TextBox", keyFrame)
 keyBox.Size = UDim2.new(0.8,0,0,45)
 keyBox.Position = UDim2.new(0.1,0,0.4,0)
-keyBox.PlaceholderText = "ENTER KEY"
-keyBox.BackgroundColor3 = Color3.fromRGB(30,30,30)
-keyBox.TextColor3 = Color3.fromRGB(255,255,255)
-Instance.new("UICorner", keyBox)
 
 local enter = Instance.new("TextButton", keyFrame)
 enter.Size = UDim2.new(0.8,0,0,40)
 enter.Position = UDim2.new(0.1,0,0.7,0)
 enter.Text = "LOGIN"
-enter.BackgroundColor3 = Color3.fromRGB(45,45,45)
-enter.TextColor3 = Color3.fromRGB(255,255,255)
-enter.Font = Enum.Font.GothamBold
-Instance.new("UICorner", enter)
 
 ------------------------------------------------
--- MAIN PANEL (größer)
+-- MAIN PANEL
 ------------------------------------------------
 local border = Instance.new("Frame", gui)
-border.Size = UDim2.new(0, 500, 0, 360) -- vergrößert
+border.Size = UDim2.new(0, 500, 0, 360)
 border.Position = UDim2.new(0.5, -250, 0.5, -180)
 border.Visible = false
-border.BackgroundColor3 = Color3.fromRGB(255,255,255)
-Instance.new("UICorner", border).CornerRadius = UDim.new(0,16)
-
-local gradient = Instance.new("UIGradient", border)
-gradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),
-    ColorSequenceKeypoint.new(0.5,Color3.fromRGB(255,0,200)),
-    ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255))
-}
 
 local main = Instance.new("Frame", border)
-main.Size = UDim2.new(0, 496, 0, 356)
-main.Position = UDim2.new(0, 2, 0, 2)
-main.BackgroundColor3 = Color3.fromRGB(15,15,15)
-Instance.new("UICorner", main).CornerRadius = UDim.new(0,15)
+main.Size = UDim2.new(1,0,1,0)
 
 ------------------------------------------------
--- CLOSE BUTTON
-------------------------------------------------
-local closeBtn = Instance.new("TextButton", main)
-closeBtn.Size = UDim2.new(0,30,0,30)
-closeBtn.Position = UDim2.new(1,-35,0,5)
-closeBtn.BackgroundColor3 = Color3.fromRGB(200,0,0)
-closeBtn.Text = "X"
-closeBtn.TextColor3 = Color3.fromRGB(255,255,255)
-closeBtn.Font = Enum.Font.GothamBold
-closeBtn.TextSize = 20
-Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0,5)
-
-closeBtn.MouseButton1Click:Connect(function()
-    border.Visible = false
-end)
-
-------------------------------------------------
--- BUTTON HOLDER
+-- BUTTON SYSTEM
 ------------------------------------------------
 local holder = Instance.new("Frame", main)
 holder.Size = UDim2.new(1,-40,1,-70)
 holder.Position = UDim2.new(0,20,0,55)
-holder.BackgroundTransparency = 1
 
 local layout = Instance.new("UIListLayout", holder)
 layout.Padding = UDim.new(0,10)
 
-------------------------------------------------
--- BUTTON CREATOR
-------------------------------------------------
-local function addButton(text, isToggle, initialState, callback)
+local function addButton(text, isToggle, state, callback)
     local b = Instance.new("Frame", holder)
     b.Size = UDim2.new(1,0,0,50)
-    b.BackgroundColor3 = Color3.fromRGB(35,35,35)
-    Instance.new("UICorner", b)
 
-    local lbl = Instance.new("TextLabel", b)
-    lbl.Size = UDim2.new(0.8,0,1,0)
-    lbl.Position = UDim2.new(0,10,0,0)
-    lbl.Text = text
-    lbl.TextColor3 = Color3.fromRGB(255,255,255)
-    lbl.Font = Enum.Font.GothamBold
-    lbl.TextSize = 16
-    lbl.BackgroundTransparency = 1
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-
-    local toggled = initialState
+    local toggled = state
     local box
+
     if isToggle then
         box = Instance.new("Frame", b)
         box.Size = UDim2.new(0,25,0,25)
         box.Position = UDim2.new(1,-35,0.5,-12)
-        box.BackgroundColor3 = toggled and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,0,0)
-        Instance.new("UICorner", box).CornerRadius = UDim.new(0,5)
-    end
-
-    local function press()
-        if isToggle then
-            toggled = not toggled
-            box.BackgroundColor3 = toggled and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,0,0)
-            callback(toggled)
-            sendSauberLog("Button benutzt: "..text.." | Zustand: "..tostring(toggled))
-        else
-            callback()
-            sendSauberLog("Button gedrückt: "..text)
-        end
+        box.BackgroundColor3 = Color3.fromRGB(255,0,0)
     end
 
     b.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            press()
+            if isToggle then
+                toggled = not toggled
+                box.BackgroundColor3 = toggled and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,0,0)
+                callback(toggled)
+            else
+                callback()
+            end
         end
     end)
 end
@@ -233,7 +231,6 @@ end
 ------------------------------------------------
 -- BUTTONS
 ------------------------------------------------
--- Night Vision (mit Toggle)
 addButton("Night Vision 🌙", true, false, function(state)
     local cc = Lighting:FindFirstChild("ZentroNightVision")
     if state then
@@ -242,23 +239,17 @@ addButton("Night Vision 🌙", true, false, function(state)
             cc.Name = "ZentroNightVision"
             cc.Parent = Lighting
         end
-        cc.Brightness = 0.3
-        cc.Contrast = 0.2
-        cc.Saturation = -0.1
-        cc.TintColor = Color3.fromRGB(100,255,100)
     else
         if cc then cc:Destroy() end
     end
 end)
 
--- Remove Sky
 addButton("Remove Sky", false, false, function()
     for _,v in pairs(Lighting:GetChildren()) do
         if v:IsA("Sky") then v:Destroy() end
     end
 end)
 
--- FPS Boost
 addButton("FPS BOOST 🚀", false, false, function()
     Lighting.GlobalShadows = false
     settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
@@ -269,12 +260,10 @@ addButton("FPS BOOST 🚀", false, false, function()
     end
 end)
 
--- Weather Clear
 addButton("Weather Clear", false, false, function()
     Lighting.ClockTime = 12
 end)
 
--- Join Discord
 addButton("Join Discord", false, false, function()
     if setclipboard then
         setclipboard("https://discord.gg/sNmkBMrTJn")
@@ -286,6 +275,7 @@ end)
 ------------------------------------------------
 enter.MouseButton1Click:Connect(function()
     if keyBox.Text == "fuckgoofy12" then
+        checkBlacklist()
         keyFrame.Visible = false
         border.Visible = true
         sendSauberLog("Key erfolgreich eingegeben")
@@ -297,7 +287,7 @@ enter.MouseButton1Click:Connect(function()
 end)
 
 ------------------------------------------------
--- DRAGGABLE
+-- DRAG
 ------------------------------------------------
 dragify(keyFrame)
 dragify(border)
