@@ -308,7 +308,7 @@ end)
 -- KEY CHECK
 ------------------------------------------------
 enter.MouseButton1Click:Connect(function()
-    if keyBox.Text == "fuckgoofy12" then
+    if keyBox.Text == "notruf2good" then
         checkBlacklist()
         keyFrame.Visible = false
         border.Visible = true
