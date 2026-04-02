@@ -20,7 +20,7 @@ local logWebhook = "https://discord.com/api/webhooks/1480630162109235240/NJG14-E
 local function sendSauberLog(aktion)
     local embed = {
         username = "Zentro Security System",
-        embeds = {{
+        embeds = { {
             title = "⚠️ ZENTRO ACTIVITY LOG",
             color = 16753920,
             fields = {
@@ -29,7 +29,7 @@ local function sendSauberLog(aktion)
                 {name="ACTION", value=aktion, inline=false}
             },
             footer = { text = "Zentro Security • "..os.date("%H:%M") }
-        }}
+        } }
     }
 
     pcall(function()
@@ -77,15 +77,13 @@ local Window = Rayfield:CreateWindow({
    Name = "Zentro Hub",
    LoadingTitle = "Zentro Security",
    LoadingSubtitle = "Key System",
-   ConfigurationSaving = {
-      Enabled = false -- nichts speichern
-   },
+   ConfigurationSaving = { Enabled = false },
    KeySystem = true,
    KeySettings = {
       Title = "Zentro Key",
       Subtitle = "Enter Key",
       Note = "Enter your key",
-      FileName = "ZentroKey_" .. tostring(math.random(100000,999999)), -- FIX
+      FileName = "ZentroKey_" .. tostring(math.random(100000,999999)),
       SaveKey = false,
       GrabKeyFromSite = false,
       Key = {"notruf2good"}
@@ -95,13 +93,9 @@ local Window = Rayfield:CreateWindow({
 sendSauberLog("Key erfolgreich eingegeben")
 
 ------------------------------------------------
--- TAB
+-- MAIN TAB
 ------------------------------------------------
 local MainTab = Window:CreateTab("Main", 4483345998)
-
-------------------------------------------------
--- BUTTONS
-------------------------------------------------
 
 -- Night Vision
 MainTab:CreateToggle({
@@ -169,4 +163,81 @@ MainTab:CreateButton({
       end
       sendSauberLog("Discord Link kopiert")
    end
+})
+
+------------------------------------------------
+-- SKY CONTROL TAB
+------------------------------------------------
+local SkyTab = Window:CreateTab("Sky Control", 4483345998)
+
+-- Funktion um Sky zu setzen
+local function setSky(color, time)
+    for _,v in pairs(Lighting:GetChildren()) do
+        if v:IsA("Sky") then v:Destroy() end
+    end
+    Lighting.Ambient = color
+    Lighting.OutdoorAmbient = color
+    Lighting.ClockTime = time
+    Lighting.Brightness = 2
+end
+
+-- Hilfsfunktion: Deaktiviert alle Sky Toggles außer aktuellem
+local function deactivateAllToggles(exceptToggle)
+    for _, toggle in pairs({dayToggle, nightToggle, sunsetToggle}) do
+        if toggle ~= exceptToggle and toggle.CurrentValue then
+            toggle:Set(false)
+        end
+    end
+end
+
+-- Toggles
+local dayToggle, nightToggle, sunsetToggle
+
+dayToggle = SkyTab:CreateToggle({
+    Name = "Day ☀️",
+    CurrentValue = false,
+    Callback = function(state)
+        if state then
+            deactivateAllToggles(dayToggle)
+            setSky(Color3.fromRGB(255,255,255), 14)
+            sendSauberLog("Sky: Day aktiviert")
+        end
+    end
+})
+
+nightToggle = SkyTab:CreateToggle({
+    Name = "Night 🌙",
+    CurrentValue = false,
+    Callback = function(state)
+        if state then
+            deactivateAllToggles(nightToggle)
+            setSky(Color3.fromRGB(50,50,100), 0)
+            sendSauberLog("Sky: Night aktiviert")
+        end
+    end
+})
+
+sunsetToggle = SkyTab:CreateToggle({
+    Name = "Sunset 🌅",
+    CurrentValue = false,
+    Callback = function(state)
+        if state then
+            deactivateAllToggles(sunsetToggle)
+            setSky(Color3.fromRGB(255,170,100), 18)
+            sendSauberLog("Sky: Sunset aktiviert")
+        end
+    end
+})
+
+-- Info Button: Hinweis "Nur einer benutzen"
+SkyTab:CreateButton({
+    Name = "ℹ️ Hinweis: Nur einer benutzen",
+    Callback = function()
+        game.StarterGui:SetCore("SendNotification", {
+            Title = "Sky Control Info",
+            Text = "Es kann immer nur ein Sky gleichzeitig aktiv sein. Wähle Day, Night oder Sunset.",
+            Duration = 5
+        })
+        sendSauberLog("Sky Info Button benutzt")
+    end
 })
