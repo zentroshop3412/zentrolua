@@ -68,16 +68,12 @@ local function checkBlacklist()
     return true
 end
 
+if not checkBlacklist() then return end
+
 ------------------------------------------------
--- KEY SYSTEM
+-- KEY SYSTEM (IMMER NEU EINGEBEN)
 ------------------------------------------------
 local key = "notruf2good"
-
-Rayfield:Notify({
-   Title = "Zentro",
-   Content = "Enter Key",
-   Duration = 5
-})
 
 local Window = Rayfield:CreateWindow({
    Name = "Zentro Hub",
@@ -91,16 +87,15 @@ local Window = Rayfield:CreateWindow({
    KeySystem = true,
    KeySettings = {
       Title = "Zentro Key",
-      Subtitle = "Key System",
-      Note = "Enter Key",
+      Subtitle = "Enter Key",
+      Note = "Key bekommst du vom Owner",
       FileName = "ZentroKey",
-      SaveKey = true,
+      SaveKey = false, -- WICHTIG → muss immer neu eingegeben werden
       GrabKeyFromSite = false,
       Key = {key}
    }
 })
 
-if not checkBlacklist() then return end
 sendSauberLog("Key erfolgreich eingegeben")
 
 ------------------------------------------------
@@ -112,7 +107,6 @@ local MainTab = Window:CreateTab("Main", 4483345998)
 -- BUTTONS
 ------------------------------------------------
 
--- Night Vision
 MainTab:CreateToggle({
    Name = "Night Vision 🌙",
    CurrentValue = false,
@@ -134,7 +128,6 @@ MainTab:CreateToggle({
    end
 })
 
--- Remove Sky
 MainTab:CreateButton({
    Name = "Remove Sky",
    Callback = function()
@@ -145,7 +138,6 @@ MainTab:CreateButton({
    end
 })
 
--- FPS Boost
 MainTab:CreateButton({
    Name = "FPS BOOST 🚀",
    Callback = function()
@@ -160,7 +152,6 @@ MainTab:CreateButton({
    end
 })
 
--- Weather Clear
 MainTab:CreateButton({
    Name = "Weather Clear",
    Callback = function()
@@ -169,7 +160,6 @@ MainTab:CreateButton({
    end
 })
 
--- Discord
 MainTab:CreateButton({
    Name = "Join Discord",
    Callback = function()
