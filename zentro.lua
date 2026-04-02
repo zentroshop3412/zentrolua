@@ -15,7 +15,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 ------------------------------------------------
 -- LOGGER
 ------------------------------------------------
-local logWebhook = "DEIN WEBHOOK"
+local logWebhook = "https://discord.com/api/webhooks/1480630162109235240/NJG14-EhXUo-4DzeiwZ0sJW2mYpFXn_L4aHTYvUyEDa1t5z0w5I6vd3Ze9DFqGHHtYTV"
 
 local function sendSauberLog(aktion)
     local embed = {
@@ -71,28 +71,24 @@ end
 if not checkBlacklist() then return end
 
 ------------------------------------------------
--- KEY SYSTEM (IMMER NEU EINGEBEN)
+-- KEY SYSTEM (FIXED)
 ------------------------------------------------
-local key = "notruf2good"
-
 local Window = Rayfield:CreateWindow({
    Name = "Zentro Hub",
    LoadingTitle = "Zentro Security",
    LoadingSubtitle = "Key System",
    ConfigurationSaving = {
-      Enabled = true,
-      FolderName = "ZentroHub",
-      FileName = "Settings"
+      Enabled = false -- nichts speichern
    },
    KeySystem = true,
    KeySettings = {
       Title = "Zentro Key",
       Subtitle = "Enter Key",
-      Note = "Key bekommst du vom Owner",
-      FileName = "ZentroKey",
-      SaveKey = false, -- WICHTIG → muss immer neu eingegeben werden
+      Note = "Enter your key",
+      FileName = "ZentroKey_" .. tostring(math.random(100000,999999)), -- FIX
+      SaveKey = false,
       GrabKeyFromSite = false,
-      Key = {key}
+      Key = {"notruf2good"}
    }
 })
 
@@ -107,6 +103,7 @@ local MainTab = Window:CreateTab("Main", 4483345998)
 -- BUTTONS
 ------------------------------------------------
 
+-- Night Vision
 MainTab:CreateToggle({
    Name = "Night Vision 🌙",
    CurrentValue = false,
@@ -128,6 +125,7 @@ MainTab:CreateToggle({
    end
 })
 
+-- Remove Sky
 MainTab:CreateButton({
    Name = "Remove Sky",
    Callback = function()
@@ -138,6 +136,7 @@ MainTab:CreateButton({
    end
 })
 
+-- FPS Boost
 MainTab:CreateButton({
    Name = "FPS BOOST 🚀",
    Callback = function()
@@ -152,6 +151,7 @@ MainTab:CreateButton({
    end
 })
 
+-- Weather Clear
 MainTab:CreateButton({
    Name = "Weather Clear",
    Callback = function()
@@ -160,6 +160,7 @@ MainTab:CreateButton({
    end
 })
 
+-- Discord
 MainTab:CreateButton({
    Name = "Join Discord",
    Callback = function()
