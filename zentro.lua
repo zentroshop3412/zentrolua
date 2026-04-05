@@ -1,37 +1,87 @@
 ------------------------------------------------
+-- DELETE SAVED KEYS (ANTI SAVE)
+------------------------------------------------
+pcall(function()
+    if delfile then
+        delfile("NoKeySave.txt")
+        delfile("ZentroKey.txt")
+        delfile("Key.txt")
+    end
+end)
+
+------------------------------------------------
 -- SERVICES
 ------------------------------------------------
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local HttpService = game:GetService("HttpService")
-
 local player = Players.LocalPlayer
 
 ------------------------------------------------
--- RAYFIELD
+-- SKYBOX DATABASE
+------------------------------------------------
+local Skyboxes = {
+    ["🌌 Universe"] = {
+        SkyboxBk="rbxassetid://159454299",
+        SkyboxDn="rbxassetid://159454296",
+        SkyboxFt="rbxassetid://159454293",
+        SkyboxLf="rbxassetid://159454286",
+        SkyboxRt="rbxassetid://159454300",
+        SkyboxUp="rbxassetid://159454288"
+    },
+    ["🟣 Purple"] = {
+        SkyboxBk="rbxassetid://16553658937",
+        SkyboxDn="rbxassetid://16553660713",
+        SkyboxFt="rbxassetid://16553662144",
+        SkyboxLf="rbxassetid://16553664042",
+        SkyboxRt="rbxassetid://16553665766",
+        SkyboxUp="rbxassetid://16553667750"
+    },
+    ["🌠 Aurora"] = {
+        SkyboxBk="rbxassetid://128600713462148",
+        SkyboxDn="rbxassetid://129205524771926",
+        SkyboxFt="rbxassetid://91295549823939",
+        SkyboxLf="rbxassetid://78049621027692",
+        SkyboxRt="rbxassetid://97339481871314",
+        SkyboxUp="rbxassetid://85412515491070"
+    },
+    ["🟠 Orange"] = {
+        SkyboxBk="rbxassetid://75806894209584",
+        SkyboxDn="rbxassetid://88955070832523",
+        SkyboxFt="rbxassetid://137588397191887",
+        SkyboxLf="rbxassetid://124955584991258",
+        SkyboxRt="rbxassetid://140343245463200",
+        SkyboxUp="rbxassetid://134383800716949"
+    },
+    ["🌙 Moonlight"] = {
+        SkyboxBk="rbxassetid://116261899350523",
+        SkyboxDn="rbxassetid://92257816837512",
+        SkyboxFt="rbxassetid://108326981730305",
+        SkyboxLf="rbxassetid://131834280163741",
+        SkyboxRt="rbxassetid://99525277797873",
+        SkyboxUp="rbxassetid://125425274451894"
+    },
+    ["🟥 Red Sky"] = {
+        SkyboxBk="rbxassetid://401664839",
+        SkyboxDn="rbxassetid://401664862",
+        SkyboxFt="rbxassetid://401664960",
+        SkyboxLf="rbxassetid://401664881",
+        SkyboxRt="rbxassetid://401664901",
+        SkyboxUp="rbxassetid://401664936"
+    }
+}
+
+------------------------------------------------
+-- RAYFIELD UI
 ------------------------------------------------
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 ------------------------------------------------
--- LOGGER
+-- DISCORD LOGGER
 ------------------------------------------------
-local logWebhook = "https://discord.com/api/webhooks/1480630162109235240/NJG14-EhXUo-4DzeiwZ0sJW2mYpFXn_L4aHTYvUyEDa1t5z0w5I6vd3Ze9DFqGHHtYTV"
+local logWebhook = "DEIN WEBHOOK HIER"
 
-local function sendSauberLog(aktion)
-    local embed = {
-        username = "Zentro Security System",
-        embeds = { {
-            title = "⚠️ ZENTRO ACTIVITY LOG",
-            color = 16753920,
-            fields = {
-                {name="USER", value=player.Name, inline=true},
-                {name="USER ID", value=tostring(player.UserId), inline=true},
-                {name="ACTION", value=aktion, inline=false}
-            },
-            footer = { text = "Zentro Security • "..os.date("%H:%M") }
-        } }
-    }
-
+local function sendLog(msg)
     pcall(function()
         local req = syn and syn.request or http_request or request
         if req then
@@ -39,7 +89,9 @@ local function sendSauberLog(aktion)
                 Url = logWebhook,
                 Method = "POST",
                 Headers = {["Content-Type"]="application/json"},
-                Body = HttpService:JSONEncode(embed)
+                Body = HttpService:JSONEncode({
+                    content = "👤 "..player.Name.." | "..msg
+                })
             })
         end
     end)
@@ -52,7 +104,7 @@ local blacklistURL = "https://raw.githubusercontent.com/zentroshop3412/blacklist
 
 local function checkBlacklist()
     local req = syn and syn.request or http_request or request
-    if not req then return end
+    if not req then return true end
     local success, response = pcall(function()
         return req({Url = blacklistURL, Method = "GET"})
     end)
@@ -60,7 +112,7 @@ local function checkBlacklist()
         for line in string.gmatch(response.Body, "[^\r\n]+") do
             line = line:gsub("%s+", "")
             if line == tostring(player.UserId) or string.lower(line) == string.lower(player.Name) then
-                player:Kick("Zentro Security: Blacklisted.")
+                player:Kick("⛔ Blacklisted.")
                 return false
             end
         end
@@ -71,173 +123,122 @@ end
 if not checkBlacklist() then return end
 
 ------------------------------------------------
--- KEY SYSTEM (FIXED)
+-- KEY SYSTEM (NO SAVE)
 ------------------------------------------------
 local Window = Rayfield:CreateWindow({
-   Name = "Zentro Hub",
+   Name = "🛡️ Zentro Hub",
    LoadingTitle = "Zentro Security",
-   LoadingSubtitle = "Key System",
-   ConfigurationSaving = { Enabled = false },
+   LoadingSubtitle = "🔑 Key System",
+   ConfigurationSaving = {
+      Enabled = false,
+      FolderName = nil,
+      FileName = nil
+   },
    KeySystem = true,
    KeySettings = {
-      Title = "Zentro Key",
+      Title = "🔑 Zentro Key",
       Subtitle = "Enter Key",
-      Note = "Enter your key",
-      FileName = "ZentroKey_" .. tostring(math.random(100000,999999)),
+      Note = "Key wird nicht gespeichert",
+      FileName = "NoKeySave",
       SaveKey = false,
       GrabKeyFromSite = false,
       Key = {"notruf2good"}
    }
 })
 
-sendSauberLog("Key erfolgreich eingegeben")
+sendLog("🔑 Key eingegeben")
+
+------------------------------------------------
+-- FUNCTIONS
+------------------------------------------------
+local function applySkybox(data)
+    for _,v in pairs(Lighting:GetChildren()) do
+        if v:IsA("Sky") then v:Destroy() end
+    end
+    local sky = Instance.new("Sky")
+    for k,v in pairs(data) do
+        sky[k] = v
+    end
+    sky.Parent = Lighting
+end
 
 ------------------------------------------------
 -- MAIN TAB
 ------------------------------------------------
-local MainTab = Window:CreateTab("Main", 4483345998)
+local MainTab = Window:CreateTab("🏠 Main", 4483345998)
 
--- Night Vision
 MainTab:CreateToggle({
-   Name = "Night Vision 🌙",
+   Name = "🌙 Night Vision",
    CurrentValue = false,
    Callback = function(state)
-      local cc = Lighting:FindFirstChild("ZentroNightVision")
+      local cc = Lighting:FindFirstChild("NightVision")
       if state then
          if not cc then
             cc = Instance.new("ColorCorrectionEffect", Lighting)
-            cc.Name = "ZentroNightVision"
+            cc.Name = "NightVision"
             cc.Brightness = 0.3
-            cc.Contrast = 0.2
-            cc.Saturation = -0.1
             cc.TintColor = Color3.fromRGB(100,255,100)
          end
       else
          if cc then cc:Destroy() end
       end
-      sendSauberLog("Night Vision: "..tostring(state))
    end
 })
 
--- Remove Sky
 MainTab:CreateButton({
-   Name = "Remove Sky",
+   Name = "🚀 FPS Boost",
+   Callback = function()
+      Lighting.GlobalShadows = false
+      settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+   end
+})
+
+MainTab:CreateButton({
+   Name = "☁️ Remove Sky",
    Callback = function()
       for _,v in pairs(Lighting:GetChildren()) do
          if v:IsA("Sky") then v:Destroy() end
       end
-      sendSauberLog("Remove Sky benutzt")
-   end
-})
-
--- FPS Boost
-MainTab:CreateButton({
-   Name = "FPS BOOST 🚀",
-   Callback = function()
-      Lighting.GlobalShadows = false
-      settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-      for _,v in pairs(game:GetDescendants()) do
-         if v:IsA("ParticleEmitter") then v.Enabled = false end
-         if v:IsA("Trail") then v.Enabled = false end
-         if v:IsA("Decal") or v:IsA("Texture") then v:Destroy() end
-      end
-      sendSauberLog("FPS Boost benutzt")
-   end
-})
-
--- Weather Clear
-MainTab:CreateButton({
-   Name = "Weather Clear",
-   Callback = function()
-      Lighting.ClockTime = 12
-      sendSauberLog("Weather Clear benutzt")
-   end
-})
-
--- Discord
-MainTab:CreateButton({
-   Name = "Join Discord",
-   Callback = function()
-      if setclipboard then
-         setclipboard("https://discord.gg/sNmkBMrTJn")
-      end
-      sendSauberLog("Discord Link kopiert")
    end
 })
 
 ------------------------------------------------
 -- SKY CONTROL TAB
 ------------------------------------------------
-local SkyTab = Window:CreateTab("Sky Control", 4483345998)
+local SkyTab = Window:CreateTab("⏰ Sky Control", 4483345998)
 
--- Funktion um Sky zu setzen
-local function setSky(color, time)
-    for _,v in pairs(Lighting:GetChildren()) do
-        if v:IsA("Sky") then v:Destroy() end
-    end
-    Lighting.Ambient = color
-    Lighting.OutdoorAmbient = color
-    Lighting.ClockTime = time
-    Lighting.Brightness = 2
-end
-
--- Hilfsfunktion: Deaktiviert alle Sky Toggles außer aktuellem
-local function deactivateAllToggles(exceptToggle)
-    for _, toggle in pairs({dayToggle, nightToggle, sunsetToggle}) do
-        if toggle ~= exceptToggle and toggle.CurrentValue then
-            toggle:Set(false)
-        end
-    end
-end
-
--- Toggles
-local dayToggle, nightToggle, sunsetToggle
-
-dayToggle = SkyTab:CreateToggle({
-    Name = "Day ☀️",
-    CurrentValue = false,
-    Callback = function(state)
-        if state then
-            deactivateAllToggles(dayToggle)
-            setSky(Color3.fromRGB(255,255,255), 14)
-            sendSauberLog("Sky: Day aktiviert")
-        end
-    end
-})
-
-nightToggle = SkyTab:CreateToggle({
-    Name = "Night 🌙",
-    CurrentValue = false,
-    Callback = function(state)
-        if state then
-            deactivateAllToggles(nightToggle)
-            setSky(Color3.fromRGB(50,50,100), 0)
-            sendSauberLog("Sky: Night aktiviert")
-        end
-    end
-})
-
-sunsetToggle = SkyTab:CreateToggle({
-    Name = "Sunset 🌅",
-    CurrentValue = false,
-    Callback = function(state)
-        if state then
-            deactivateAllToggles(sunsetToggle)
-            setSky(Color3.fromRGB(255,170,100), 18)
-            sendSauberLog("Sky: Sunset aktiviert")
-        end
-    end
-})
-
--- Info Button: Hinweis "Nur einer benutzen"
 SkyTab:CreateButton({
-    Name = "ℹ️ Hinweis: Nur einer benutzen",
+    Name = "☀️ Day",
     Callback = function()
-        game.StarterGui:SetCore("SendNotification", {
-            Title = "Sky Control Info",
-            Text = "Es kann immer nur ein Sky gleichzeitig aktiv sein. Wähle Day, Night oder Sunset.",
-            Duration = 5
-        })
-        sendSauberLog("Sky Info Button benutzt")
+        Lighting.ClockTime = 14
     end
 })
+
+SkyTab:CreateButton({
+    Name = "🌙 Night",
+    Callback = function()
+        Lighting.ClockTime = 0
+    end
+})
+
+SkyTab:CreateButton({
+    Name = "🌇 Sunset",
+    Callback = function()
+        Lighting.ClockTime = 18
+    end
+})
+
+------------------------------------------------
+-- SKY SELECTION TAB
+------------------------------------------------
+local SkySelectTab = Window:CreateTab("🌌 Sky Selection", 4483345998)
+
+for name,data in pairs(Skyboxes) do
+    SkySelectTab:CreateButton({
+        Name = name,
+        Callback = function()
+            applySkybox(data)
+            sendLog("🌌 Skybox: "..name)
+        end
+    })
+end
