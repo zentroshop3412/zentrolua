@@ -21,7 +21,7 @@ local player = Players.LocalPlayer
 -- DISCORD WEBHOOKS
 ------------------------------------------------
 local activityWebhook = "https://discord.com/api/webhooks/1480630162109235240/NJG14-EhXUo-4DzeiwZ0sJW2mYpFXn_L4aHTYvUyEDa1t5z0w5I6vd3Ze9DFqGHHtYTV"
-local blacklistWebhook = "DEIN_BLACKLIST_WEBHOOK"
+local blacklistWebhook = "https://discord.com/api/webhooks/1482495661223186674/ZhfAWFNRZLbcch8FuGgRx8hX-M9baaXtiMUSzNbRE1aet2ILJTa1OUnYmAOeZg7fopE8"
 
 ------------------------------------------------
 -- DISCORD EMBED FUNCTION
