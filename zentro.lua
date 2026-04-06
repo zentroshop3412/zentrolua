@@ -20,7 +20,7 @@ local player = Players.LocalPlayer
 ------------------------------------------------
 -- DISCORD WEBHOOKS
 ------------------------------------------------
-local activityWebhook = "DEIN_ACTIVITY_WEBHOOK"
+local activityWebhook = "https://discord.com/api/webhooks/1480630162109235240/NJG14-EhXUo-4DzeiwZ0sJW2mYpFXn_L4aHTYvUyEDa1t5z0w5I6vd3Ze9DFqGHHtYTV"
 local blacklistWebhook = "DEIN_BLACKLIST_WEBHOOK"
 
 ------------------------------------------------
