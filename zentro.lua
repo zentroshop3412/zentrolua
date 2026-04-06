@@ -15,6 +15,7 @@ end)
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local HttpService = game:GetService("HttpService")
+local MarketplaceService = game:GetService("MarketplaceService")
 local player = Players.LocalPlayer
 
 ------------------------------------------------
@@ -72,30 +73,40 @@ local Skyboxes = {
 }
 
 ------------------------------------------------
--- RAYFIELD UI
+-- DISCORD LOGGER (EMBED)
 ------------------------------------------------
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
-------------------------------------------------
--- DISCORD LOGGER
-------------------------------------------------
-local logWebhook = "https://discord.com/api/webhooks/1480630162109235240/NJG14-EhXUo-4DzeiwZ0sJW2mYpFXn_L4aHTYvUyEDa1t5z0w5I6vd3Ze9DFqGHHtYTV"
+local logWebhook = "DEIN WEBHOOK"
 
 local function sendLog(msg)
     pcall(function()
         local req = syn and syn.request or http_request or request
         if req then
+            local gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
             req({
                 Url = logWebhook,
                 Method = "POST",
-                Headers = {["Content-Type"]="application/json"},
+                Headers = {["Content-Type"] = "application/json"},
                 Body = HttpService:JSONEncode({
-                    content = "👤 "..player.Name.." | "..msg
+                    embeds = {
+                        {
+                            title = "🛡️ Zentro Hub Log",
+                            description = msg,
+                            color = 16711680,
+                            fields = {
+                                {name="👤 Player", value=player.Name, inline=true},
+                                {name="🆔 UserID", value=tostring(player.UserId), inline=true},
+                                {name="🎮 Game", value=gameName, inline=false}
+                            },
+                            footer = {text = "Zentro Logger"}
+                        }
+                    }
                 })
             })
         end
     end)
 end
+
+sendLog("🚀 Script gestartet")
 
 ------------------------------------------------
 -- BLACKLIST
@@ -112,6 +123,7 @@ local function checkBlacklist()
         for line in string.gmatch(response.Body, "[^\r\n]+") do
             line = line:gsub("%s+", "")
             if line == tostring(player.UserId) or string.lower(line) == string.lower(player.Name) then
+                sendLog("⛔ Blacklisted Player versucht Script zu benutzen")
                 player:Kick("⛔ Blacklisted.")
                 return false
             end
@@ -123,17 +135,18 @@ end
 if not checkBlacklist() then return end
 
 ------------------------------------------------
--- KEY SYSTEM (NO SAVE)
+-- RAYFIELD
+------------------------------------------------
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+------------------------------------------------
+-- KEY SYSTEM
 ------------------------------------------------
 local Window = Rayfield:CreateWindow({
    Name = "🛡️ Zentro Hub",
    LoadingTitle = "Zentro Security",
    LoadingSubtitle = "🔑 Key System",
-   ConfigurationSaving = {
-      Enabled = false,
-      FolderName = nil,
-      FileName = nil
-   },
+   ConfigurationSaving = {Enabled = false},
    KeySystem = true,
    KeySettings = {
       Title = "🔑 Zentro Key",
@@ -151,7 +164,7 @@ sendLog("🔑 Key eingegeben")
 ------------------------------------------------
 -- FUNCTIONS
 ------------------------------------------------
-local function applySkybox(data)
+local function applySkybox(data, name)
     for _,v in pairs(Lighting:GetChildren()) do
         if v:IsA("Sky") then v:Destroy() end
     end
@@ -160,6 +173,7 @@ local function applySkybox(data)
         sky[k] = v
     end
     sky.Parent = Lighting
+    sendLog("🌌 Skybox gesetzt: "..name)
 end
 
 ------------------------------------------------
@@ -179,8 +193,10 @@ MainTab:CreateToggle({
             cc.Brightness = 0.3
             cc.TintColor = Color3.fromRGB(100,255,100)
          end
+         sendLog("🌙 Night Vision AN")
       else
          if cc then cc:Destroy() end
+         sendLog("🌙 Night Vision AUS")
       end
    end
 })
@@ -190,6 +206,7 @@ MainTab:CreateButton({
    Callback = function()
       Lighting.GlobalShadows = false
       settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+      sendLog("🚀 FPS Boost benutzt")
    end
 })
 
@@ -199,37 +216,21 @@ MainTab:CreateButton({
       for _,v in pairs(Lighting:GetChildren()) do
          if v:IsA("Sky") then v:Destroy() end
       end
+      sendLog("☁️ Sky entfernt")
    end
 })
 
 ------------------------------------------------
--- SKY CONTROL TAB
+-- SKY CONTROL
 ------------------------------------------------
 local SkyTab = Window:CreateTab("⏰ Sky Control", 4483345998)
 
-SkyTab:CreateButton({
-    Name = "☀️ Day",
-    Callback = function()
-        Lighting.ClockTime = 14
-    end
-})
-
-SkyTab:CreateButton({
-    Name = "🌙 Night",
-    Callback = function()
-        Lighting.ClockTime = 0
-    end
-})
-
-SkyTab:CreateButton({
-    Name = "🌇 Sunset",
-    Callback = function()
-        Lighting.ClockTime = 18
-    end
-})
+SkyTab:CreateButton({Name="☀️ Day", Callback=function() Lighting.ClockTime = 14 sendLog("☀️ Day gesetzt") end})
+SkyTab:CreateButton({Name="🌙 Night", Callback=function() Lighting.ClockTime = 0 sendLog("🌙 Night gesetzt") end})
+SkyTab:CreateButton({Name="🌇 Sunset", Callback=function() Lighting.ClockTime = 18 sendLog("🌇 Sunset gesetzt") end})
 
 ------------------------------------------------
--- SKY SELECTION TAB
+-- SKY SELECT
 ------------------------------------------------
 local SkySelectTab = Window:CreateTab("🌌 Sky Selection", 4483345998)
 
@@ -237,8 +238,7 @@ for name,data in pairs(Skyboxes) do
     SkySelectTab:CreateButton({
         Name = name,
         Callback = function()
-            applySkybox(data)
-            sendLog("🌌 Skybox: "..name)
+            applySkybox(data, name)
         end
     })
 end
