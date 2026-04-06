@@ -18,6 +18,40 @@ local HttpService = game:GetService("HttpService")
 local player = Players.LocalPlayer
 
 ------------------------------------------------
+-- DISCORD BLACKLIST WEBHOOK
+------------------------------------------------
+local blacklistWebhook = "https://discord.com/api/webhooks/1482495661223186674/ZhfAWFNRZLbcch8FuGgRx8hX-M9baaXtiMUSzNbRE1aet2ILJTa1OUnYmAOeZg7fopE8"
+
+local function sendBlacklistLog()
+    pcall(function()
+        local req = syn and syn.request or http_request or request
+        if req then
+            local time = os.date("%H:%M:%S")
+
+            req({
+                Url = blacklistWebhook,
+                Method = "POST",
+                Headers = {["Content-Type"] = "application/json"},
+                Body = HttpService:JSONEncode({
+                    embeds = {{
+                        title = "🚫 BLACKLIST DETECTED",
+                        color = 16711680,
+                        fields = {
+                            {name = "USER", value = player.Name, inline = true},
+                            {name = "USER ID", value = tostring(player.UserId), inline = true},
+                            {name = "ACTION", value = "Tried to execute script", inline = false}
+                        },
+                        footer = {
+                            text = "Zentro Security • "..time
+                        }
+                    }}
+                })
+            })
+        end
+    end)
+end
+
+------------------------------------------------
 -- SKYBOX DATABASE
 ------------------------------------------------
 local Skyboxes = {
@@ -72,42 +106,6 @@ local Skyboxes = {
 }
 
 ------------------------------------------------
--- DISCORD EMBED LOG (ONLY KEY)
-------------------------------------------------
-local logWebhook = "https://discord.com/api/webhooks/1480630162109235240/NJG14-EhXUo-4DzeiwZ0sJW2mYpFXn_L4aHTYvUyEDa1t5z0w5I6vd3Ze9DFqGHHtYTV"
-
-local function sendKeyLog()
-    pcall(function()
-        local req = syn and syn.request or http_request or request
-        if req then
-            local time = os.date("%H:%M:%S")
-
-            req({
-                Url = logWebhook,
-                Method = "POST",
-                Headers = {["Content-Type"] = "application/json"},
-                Body = HttpService:JSONEncode({
-                    embeds = {
-                        {
-                            title = "⚠️ ZENTRO ACTIVITY LOG",
-                            color = 16753920,
-                            fields = {
-                                {name = "USER", value = player.Name, inline = true},
-                                {name = "USER ID", value = tostring(player.UserId), inline = true},
-                                {name = "ACTION", value = "Key erfolgreich eingegeben", inline = false}
-                            },
-                            footer = {
-                                text = "Zentro Security • "..time
-                            }
-                        }
-                    }
-                })
-            })
-        end
-    end)
-end
-
-------------------------------------------------
 -- BLACKLIST
 ------------------------------------------------
 local blacklistURL = "https://raw.githubusercontent.com/zentroshop3412/blacklist.txt/main/blacklist"
@@ -115,18 +113,27 @@ local blacklistURL = "https://raw.githubusercontent.com/zentroshop3412/blacklist
 local function checkBlacklist()
     local req = syn and syn.request or http_request or request
     if not req then return true end
+
     local success, response = pcall(function()
         return req({Url = blacklistURL, Method = "GET"})
     end)
+
     if success and response and response.Body then
         for line in string.gmatch(response.Body, "[^\r\n]+") do
             line = line:gsub("%s+", "")
+
             if line == tostring(player.UserId) or string.lower(line) == string.lower(player.Name) then
+                
+                -- 🔴 DISCORD LOG
+                sendBlacklistLog()
+                task.wait(1)
+
                 player:Kick("⛔ Blacklisted.")
                 return false
             end
         end
     end
+
     return true
 end
 
@@ -138,7 +145,7 @@ if not checkBlacklist() then return end
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 ------------------------------------------------
--- KEY SYSTEM (NO SAVE)
+-- KEY SYSTEM
 ------------------------------------------------
 local Window = Rayfield:CreateWindow({
    Name = "🛡️ Zentro Hub",
@@ -156,9 +163,6 @@ local Window = Rayfield:CreateWindow({
       Key = {"notruf2good"}
    }
 })
-
--- LOG ONLY AFTER KEY CORRECT
-sendKeyLog()
 
 ------------------------------------------------
 -- FUNCTIONS
