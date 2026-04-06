@@ -18,29 +18,29 @@ local HttpService = game:GetService("HttpService")
 local player = Players.LocalPlayer
 
 ------------------------------------------------
--- DISCORD BLACKLIST WEBHOOK
+-- DISCORD WEBHOOKS
 ------------------------------------------------
+local activityWebhook = "https://discord.com/api/webhooks/1480630162109235240/NJG14-EhXUo-4DzeiwZ0sJW2mYpFXn_L4aHTYvUyEDa1t5z0w5I6vd3Ze9DFqGHHtYTV"
 local blacklistWebhook = "https://discord.com/api/webhooks/1482495661223186674/ZhfAWFNRZLbcch8FuGgRx8hX-M9baaXtiMUSzNbRE1aet2ILJTa1OUnYmAOeZg7fopE8"
 
-local function sendBlacklistLog()
+------------------------------------------------
+-- WEBHOOK FUNCTIONS
+------------------------------------------------
+local function sendWebhook(webhook, title, color, fields)
     pcall(function()
         local req = syn and syn.request or http_request or request
         if req then
             local time = os.date("%H:%M:%S")
 
             req({
-                Url = blacklistWebhook,
+                Url = webhook,
                 Method = "POST",
                 Headers = {["Content-Type"] = "application/json"},
                 Body = HttpService:JSONEncode({
                     embeds = {{
-                        title = "🚫 BLACKLIST DETECTED",
-                        color = 16711680,
-                        fields = {
-                            {name = "USER", value = player.Name, inline = true},
-                            {name = "USER ID", value = tostring(player.UserId), inline = true},
-                            {name = "ACTION", value = "Tried to execute script", inline = false}
-                        },
+                        title = title,
+                        color = color,
+                        fields = fields,
                         footer = {
                             text = "Zentro Security • "..time
                         }
@@ -49,6 +49,22 @@ local function sendBlacklistLog()
             })
         end
     end)
+end
+
+local function sendActivityLog()
+    sendWebhook(activityWebhook,"⚠️ ZENTRO ACTIVITY LOG",16753920,{
+        {name="USER",value=player.Name,inline=true},
+        {name="USER ID",value=tostring(player.UserId),inline=true},
+        {name="ACTION",value="Key erfolgreich eingegeben",inline=false}
+    })
+end
+
+local function sendBlacklistLog()
+    sendWebhook(blacklistWebhook,"🚫 BLACKLIST DETECTED",16711680,{
+        {name="USER",value=player.Name,inline=true},
+        {name="USER ID",value=tostring(player.UserId),inline=true},
+        {name="ACTION",value="Blacklisted User tried to execute script",inline=false}
+    })
 end
 
 ------------------------------------------------
@@ -124,7 +140,6 @@ local function checkBlacklist()
 
             if line == tostring(player.UserId) or string.lower(line) == string.lower(player.Name) then
                 
-                -- 🔴 DISCORD LOG
                 sendBlacklistLog()
                 task.wait(1)
 
@@ -164,79 +179,5 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
-------------------------------------------------
--- FUNCTIONS
-------------------------------------------------
-local function applySkybox(data)
-    for _,v in pairs(Lighting:GetChildren()) do
-        if v:IsA("Sky") then v:Destroy() end
-    end
-    local sky = Instance.new("Sky")
-    for k,v in pairs(data) do
-        sky[k] = v
-    end
-    sky.Parent = Lighting
-end
-
-------------------------------------------------
--- MAIN TAB
-------------------------------------------------
-local MainTab = Window:CreateTab("🏠 Main", 4483345998)
-
-MainTab:CreateToggle({
-   Name = "🌙 Night Vision",
-   CurrentValue = false,
-   Callback = function(state)
-      local cc = Lighting:FindFirstChild("NightVision")
-      if state then
-         if not cc then
-            cc = Instance.new("ColorCorrectionEffect", Lighting)
-            cc.Name = "NightVision"
-            cc.Brightness = 0.3
-            cc.TintColor = Color3.fromRGB(100,255,100)
-         end
-      else
-         if cc then cc:Destroy() end
-      end
-   end
-})
-
-MainTab:CreateButton({
-   Name = "🚀 FPS Boost",
-   Callback = function()
-      Lighting.GlobalShadows = false
-      settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-   end
-})
-
-MainTab:CreateButton({
-   Name = "☁️ Remove Sky",
-   Callback = function()
-      for _,v in pairs(Lighting:GetChildren()) do
-         if v:IsA("Sky") then v:Destroy() end
-      end
-   end
-})
-
-------------------------------------------------
--- SKY CONTROL
-------------------------------------------------
-local SkyTab = Window:CreateTab("⏰ Sky Control", 4483345998)
-
-SkyTab:CreateButton({Name="☀️ Day", Callback=function() Lighting.ClockTime = 14 end})
-SkyTab:CreateButton({Name="🌙 Night", Callback=function() Lighting.ClockTime = 0 end})
-SkyTab:CreateButton({Name="🌇 Sunset", Callback=function() Lighting.ClockTime = 18 end})
-
-------------------------------------------------
--- SKY SELECT
-------------------------------------------------
-local SkySelectTab = Window:CreateTab("🌌 Sky Selection", 4483345998)
-
-for name,data in pairs(Skyboxes) do
-    SkySelectTab:CreateButton({
-        Name = name,
-        Callback = function()
-            applySkybox(data)
-        end
-    })
-end
+-- 🔑 ACTIVITY LOG AFTER KEY
+sendActivityLog()
