@@ -46,7 +46,7 @@ local function sendEmbed(webhook, title, color, actionText)
                             {name = "📌 Action", value = actionText, inline = false}
                         },
                         footer = {
-                            text = "🛡️ Zentro Security • "..time
+                            text = "🌙 Night Shop • "..time
                         }
                     }}
                 })
@@ -56,7 +56,7 @@ local function sendEmbed(webhook, title, color, actionText)
 end
 
 local function sendActivityLog()
-    sendEmbed(activityWebhook, "⚠️ ZENTRO ACTIVITY", 16753920, "Key erfolgreich eingegeben")
+    sendEmbed(activityWebhook, "🌙 NIGHT SHOP ACTIVITY", 16753920, "Key erfolgreich eingegeben")
 end
 
 local function sendBlacklistLog()
@@ -157,13 +157,13 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 -- KEY SYSTEM (NO SAVE)
 ------------------------------------------------
 local Window = Rayfield:CreateWindow({
-   Name = "🛡️ Zentro Hub",
-   LoadingTitle = "Zentro Security",
+   Name = "🌙 Night Shop",
+   LoadingTitle = "Night Shop",
    LoadingSubtitle = "🔑 Key System",
    ConfigurationSaving = {Enabled = false},
    KeySystem = true,
    KeySettings = {
-      Title = "🔑 Zentro Key",
+      Title = "🔑 Night Key",
       Subtitle = "Enter Key",
       Note = "Key wird nicht gespeichert",
       FileName = "NoKeySave",
@@ -173,7 +173,7 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
--- Activity Log wenn Key richtig
+-- LOG NUR BEI KEY
 sendActivityLog()
 
 ------------------------------------------------
